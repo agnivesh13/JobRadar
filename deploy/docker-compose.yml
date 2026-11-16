@@ -1,0 +1,119 @@
+# JobRadar: every service from one file.
+#   docker compose up -d --build        (from the repo root)
+# Settings come from deploy/.env (copy .env.example); every value has a default.
+
+name: jobradar
+
+x-app: &app
+  image: jobradar:dev
+  build:
+    context: ..
+    dockerfile: deploy/Dockerfile
+    target: app
+  restart: unless-stopped
+  env_file:
+    - path: .env
+      required: false
+  environment: &app-env
+    DATABASE_URL: postgres://jobradar:jobradar@postgres:5432/jobradar?sslmode=disable
+    NATS_URL: nats://nats:4222
+  depends_on:
+    migrate:
+      condition: service_completed_successfully
+    nats:
+      condition: service_healthy
+  # Lets a worker finish its current task on `docker compose stop`.
+  stop_grace_period: 40s
+  healthcheck: &worker-health
+    test: ["CMD", "wget", "-qO-", "http://localhost:8081/healthz"]
+    interval: 10s
+    timeout: 4s
+    retries: 5
+    start_period: 5s
+
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: jobradar
+      POSTGRES_PASSWORD: jobradar
+      POSTGRES_DB: jobradar
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:${POSTGRES_HOST_PORT:-55432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jobradar -d jobradar"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  nats:
+    image: nats:2.11-alpine
+    restart: unless-stopped
+    command: ["-js", "-sd", "/data", "-m", "8222"]
+    volumes:
+      - natsdata:/data
+    ports:
+      - "127.0.0.1:${NATS_HOST_PORT:-4222}:4222"
+      - "127.0.0.1:8222:8222"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8222/healthz"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  migrate:
+    <<: *app
+    restart: "no"
+    command: ["migrate"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      disable: true
+
+  api:
+    <<: *app
+    command: ["api"]
+    ports:
+      - "127.0.0.1:${API_HOST_PORT:-8080}:8080"
+    healthcheck:
+      <<: *worker-health
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/healthz"]
+
+  scheduler:
+    <<: *app
+    command: ["scheduler"]
+
+  fetcher:
+    <<: *app
+    command: ["fetcher"]
+    deploy:
+      replicas: ${FETCHER_REPLICAS:-3}
+
+  extractor:
+    <<: *app
+    command: ["extractor"]
+    deploy:
+      replicas: ${EXTRACTOR_REPLICAS:-2}
+
+  scorer:
+    <<: *app
+    command: ["scorer"]
+
+  renderer:
+    <<: *app
+    image: jobradar-renderer:dev
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+      target: renderer
+    command: ["renderer"]
+    profiles: ["render"]
+    mem_limit: 1g
+
+volumes:
+  pgdata:
+  natsdata:

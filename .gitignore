@@ -1,0 +1,10 @@
+.env
+deploy/.env
+/bin/
+/jobradar
+*.exe
+node_modules/
+web/dist/
+*.log
+.vscode/
+.idea/
