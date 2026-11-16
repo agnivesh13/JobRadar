@@ -8,6 +8,7 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
+	"sync"
 	"time"
 
 	"jobradar/internal/config"
@@ -22,6 +23,9 @@ type Deps struct {
 	Store   *store.Store
 	Queue   *queue.Queue
 	Log     *slog.Logger
+
+	controlOnce sync.Once
+	control     *Control
 }
 
 // Connect opens Postgres and NATS for the named service.

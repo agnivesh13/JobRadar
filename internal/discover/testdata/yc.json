@@ -1,0 +1,74 @@
+[
+ {
+  "name": "Razorpay",
+  "website": "https://razorpay.com",
+  "all_locations": "Bengaluru, KA, India",
+  "regions": [
+   "India",
+   "South Asia",
+   "Remote",
+   "Partly Remote"
+  ],
+  "batch": "Winter 2015",
+  "stage": "Growth",
+  "status": "Active",
+  "isHiring": true
+ },
+ {
+  "name": "Drip Capital",
+  "website": "http://dripcapital.com",
+  "all_locations": "MH, India",
+  "regions": [
+   "India",
+   "South Asia",
+   "Remote",
+   "Partly Remote"
+  ],
+  "batch": "Summer 2015",
+  "stage": "Growth",
+  "status": "Active",
+  "isHiring": true
+ },
+ {
+  "name": "Meesho",
+  "website": "http://www.meesho.com",
+  "all_locations": "Bengaluru, KA, India",
+  "regions": [
+   "India",
+   "South Asia",
+   "Remote",
+   "Partly Remote"
+  ],
+  "batch": "Summer 2016",
+  "stage": "Growth",
+  "status": "Public",
+  "isHiring": true
+ },
+ {
+  "name": "HackerRank",
+  "website": "http://hackerrank.com",
+  "all_locations": "San Francisco, CA, USA",
+  "regions": [
+   "United States of America",
+   "America / Canada"
+  ],
+  "batch": "Summer 2011",
+  "stage": "Growth",
+  "status": "Active",
+  "isHiring": true
+ },
+ {
+  "name": "Mino Games",
+  "website": "http://minomonsters.com",
+  "all_locations": "San Francisco, CA, USA; Montreal, QC, Canada",
+  "regions": [
+   "United States of America",
+   "Canada",
+   "America / Canada"
+  ],
+  "batch": "Winter 2011",
+  "stage": "Growth",
+  "status": "Active",
+  "isHiring": true
+ }
+]

@@ -52,9 +52,10 @@ services:
   nats:
     image: nats:2.11-alpine
     restart: unless-stopped
-    command: ["-js", "-sd", "/data", "-m", "8222"]
+    command: ["-c", "/etc/nats/nats.conf"]
     volumes:
       - natsdata:/data
+      - ./nats.conf:/etc/nats/nats.conf:ro
     ports:
       - "127.0.0.1:${NATS_HOST_PORT:-4222}:4222"
       - "127.0.0.1:8222:8222"
@@ -83,9 +84,12 @@ services:
       <<: *worker-health
       test: ["CMD", "wget", "-qO-", "http://localhost:8080/healthz"]
 
+  # Two schedulers run; a Postgres advisory lock makes exactly one the leader.
   scheduler:
     <<: *app
     command: ["scheduler"]
+    deploy:
+      replicas: ${SCHEDULER_REPLICAS:-2}
 
   fetcher:
     <<: *app

@@ -1,0 +1,114 @@
+// Package boards reads the public JSON feeds of job-board products. One
+// parser per product covers every company hosted on it.
+//
+// Feed URLs and response shapes were checked against live responses on
+// 16 Nov 2026; trimmed copies are in testdata/ and the tests parse them.
+package boards
+
+import (
+	"fmt"
+	"html"
+	"net/url"
+	"regexp"
+	"strings"
+
+	"jobradar/internal/model"
+)
+
+// FeedURL returns the URL of the JSON feed listing every job of one company.
+func FeedURL(boardType, token string) (string, error) {
+	t := url.PathEscape(token)
+	switch boardType {
+	case model.BoardGreenhouse:
+		return "https://boards-api.greenhouse.io/v1/boards/" + t + "/jobs?content=true", nil
+	case model.BoardLever:
+		return "https://api.lever.co/v0/postings/" + t + "?mode=json", nil
+	case model.BoardAshby:
+		return "https://api.ashbyhq.com/posting-api/job-board/" + t + "?includeCompensation=true", nil
+	}
+	return "", fmt.Errorf("no feed for board type %q", boardType)
+}
+
+// Parse turns a feed body into job records.
+func Parse(boardType string, body []byte) ([]model.RawJob, error) {
+	switch boardType {
+	case model.BoardGreenhouse:
+		return parseGreenhouse(body)
+	case model.BoardLever:
+		return parseLever(body)
+	case model.BoardAshby:
+		return parseAshby(body)
+	}
+	return nil, fmt.Errorf("no parser for board type %q", boardType)
+}
+
+// Detect recognises a board from any URL that points at it (a careers page
+// link, an iframe, a script src) and returns the board type and company token.
+func Detect(rawURL string) (boardType, token string, ok bool) {
+	for _, d := range detectors {
+		if m := d.re.FindStringSubmatch(rawURL); m != nil {
+			tok := m[1]
+			if reserved[strings.ToLower(tok)] {
+				continue
+			}
+			return d.board, tok, true
+		}
+	}
+	return "", "", false
+}
+
+var reserved = map[string]bool{"embed": true, "v1": true, "api": true, "www": true, "js": true, "css": true, "static": true}
+
+var detectors = []struct {
+	board string
+	re    *regexp.Regexp
+}{
+	{model.BoardGreenhouse, regexp.MustCompile(`(?i)(?:boards|job-boards)(?:\.eu)?\.greenhouse\.io/embed/job_board(?:/js)?\?(?:[^"'\s]*&)?for=([\w-]+)`)},
+	{model.BoardGreenhouse, regexp.MustCompile(`(?i)boards-api\.greenhouse\.io/v1/boards/([\w-]+)`)},
+	{model.BoardGreenhouse, regexp.MustCompile(`(?i)(?:boards|job-boards)(?:\.eu)?\.greenhouse\.io/([\w-]+)`)},
+	{model.BoardLever, regexp.MustCompile(`(?i)(?:jobs|api)(?:\.eu)?\.lever\.co/(?:v0/postings/)?([\w.-]+)`)},
+	{model.BoardAshby, regexp.MustCompile(`(?i)jobs\.ashbyhq\.com/([\w.%-]+)`)},
+	{model.BoardAshby, regexp.MustCompile(`(?i)api\.ashbyhq\.com/posting-api/job-board/([\w.%-]+)`)},
+}
+
+var (
+	tagBreakRe = regexp.MustCompile(`(?i)<\s*(?:br|/p|/div|/li|/h[1-6]|/tr)\s*/?>`)
+	liRe       = regexp.MustCompile(`(?i)<\s*li[^>]*>`)
+	dropRe     = regexp.MustCompile(`(?is)<(script|style)[^>]*>.*?</(script|style)>`)
+	tagRe      = regexp.MustCompile(`(?s)<[^>]*>`)
+	spaceRe    = regexp.MustCompile(`[ \t\x{00a0}]+`)
+	blankRe    = regexp.MustCompile(`\n\s*\n+`)
+)
+
+// HTMLToText flattens HTML into readable plain text, keeping paragraph and
+// list breaks so salary sentences stay on their own lines.
+func HTMLToText(s string) string {
+	s = dropRe.ReplaceAllString(s, " ")
+	s = tagBreakRe.ReplaceAllString(s, "\n")
+	s = liRe.ReplaceAllString(s, "\n- ")
+	s = tagRe.ReplaceAllString(s, " ")
+	s = html.UnescapeString(s)
+	s = spaceRe.ReplaceAllString(s, " ")
+	s = strings.ReplaceAll(strings.ReplaceAll(s, " \n", "\n"), "\n ", "\n")
+	s = blankRe.ReplaceAllString(s, "\n")
+	return strings.TrimSpace(s)
+}
+
+// maxDescription keeps one job message far below the NATS message limit.
+const maxDescription = 30_000
+
+func clip(s string) string {
+	if len(s) <= maxDescription {
+		return s
+	}
+	return strings.ToValidUTF8(s[:maxDescription], "")
+}
+
+func looksRemote(parts ...string) bool {
+	for _, p := range parts {
+		if strings.Contains(strings.ToLower(p), "remote") {
+			return true
+		}
+	}
+	return false
+}

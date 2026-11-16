@@ -6,13 +6,16 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 
+	"jobradar/internal/api"
 	"jobradar/internal/app"
 	"jobradar/internal/config"
+	"jobradar/internal/salary"
+	"jobradar/internal/score"
+	"jobradar/internal/services"
 	"jobradar/internal/store"
 )
 
@@ -28,6 +31,11 @@ services:
 
 tools:
   migrate     apply database migrations and exit
+  seed [csv]  load companies from a CSV (default seeds/companies.csv)
+  crawl       single-process crawl without the queue (-limit, -workers, -force)
+  recrawl     ask the scheduler to re-crawl every company now
+  verify      check pipeline invariants: nothing lost, nothing duplicated
+  queue       show queue state (-dead lists dead letters, -reset wipes the work queue)
 `
 
 func main() {
@@ -55,13 +63,8 @@ func main() {
 type command func(ctx context.Context, cfg config.Config, args []string) error
 
 var commands = map[string]command{
-	"migrate":   runMigrate,
-	"api":       runAPI,
-	"scheduler": worker("scheduler"),
-	"fetcher":   worker("fetcher"),
-	"extractor": worker("extractor"),
-	"scorer":    worker("scorer"),
-	"renderer":  worker("renderer"),
+	"migrate": runMigrate,
+	"api":     runAPI,
 }
 
 func runMigrate(ctx context.Context, cfg config.Config, _ []string) error {
@@ -81,14 +84,18 @@ func runAPI(ctx context.Context, cfg config.Config, _ []string) error {
 		return err
 	}
 	defer d.Close()
-	mux := http.NewServeMux()
-	mux.HandleFunc("GET /healthz", d.HealthHandler())
-	return app.Serve(ctx, cfg.HTTPAddr, mux, d.Log)
+	judge := &score.Judge{Store: d.Store, Rates: rates(cfg)}
+	srv := api.New(d, judge)
+	if err := srv.StartLive(ctx); err != nil {
+		return err
+	}
+	srv.StartCompanies()
+	return app.Serve(ctx, cfg.HTTPAddr, srv.Handler(), d.Log)
 }
 
-// worker is the Phase 0 body of every background service: connect, expose
-// /healthz, wait for shutdown. Later phases replace it per service.
-func worker(name string) command {
+// service wraps a background role: connect, expose /healthz, run until the
+// shutdown signal, then let in-flight work finish.
+func service(name string, run func(ctx context.Context, d *app.Deps) error) command {
 	return func(ctx context.Context, cfg config.Config, _ []string) error {
 		d, err := app.Connect(ctx, name, cfg)
 		if err != nil {
@@ -97,8 +104,23 @@ func worker(name string) command {
 		defer d.Close()
 		d.ServeHealth(ctx)
 		d.Log.Info("ready")
-		<-ctx.Done()
-		d.Log.Info("shutting down")
-		return nil
+		err = run(ctx, d)
+		d.Log.Info("stopped")
+		return err
 	}
+}
+
+func init() {
+	commands["scheduler"] = service("scheduler", services.RunScheduler)
+	commands["fetcher"] = service("fetcher", func(ctx context.Context, d *app.Deps) error {
+		return services.RunFetcher(ctx, d, d.Cfg.FetchConcurrency)
+	})
+	commands["extractor"] = service("extractor", func(ctx context.Context, d *app.Deps) error {
+		return services.RunExtractor(ctx, d, d.Cfg.ExtractConcurrency)
+	})
+	commands["scorer"] = service("scorer", services.RunScorer)
+	commands["renderer"] = service("renderer", services.RunRenderer)
+}
+func rates(cfg config.Config) salary.Rates {
+	return salary.Rates{USD: cfg.USDToINR, EUR: cfg.EURToINR, GBP: cfg.GBPToINR}
 }

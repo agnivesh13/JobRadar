@@ -19,6 +19,8 @@ docker compose stop                   # workers finish their current task
 go build ./... ; go vet ./...         # compile check
 go test ./...                         # unit tests; they never touch the network
 cd web ; npm run build                # front end
+bash scripts/chaos.sh                 # kill containers mid-crawl, then verify invariants
+docker compose run --rm migrate <cmd> # seed | recrawl | verify | queue [-dead|-reset] | crawl
 ```
 
 Host ports: api 8080, Postgres **55432** (5432 and 5433 are used by other software on this machine), NATS 4222, NATS monitor 8222.
@@ -29,7 +31,11 @@ See "Repo layout" in PLAN.md. Rules of thumb:
 
 - SQL lives only in `internal/store`. Migrations are numbered files in `internal/store/migrations/`, embedded and applied by `jobradar migrate`. Never edit an applied migration; add a new one.
 - Board parsers live in `internal/boards`, one file per board, each with a test that reads a real saved response from `testdata/`.
-- Every stage handler must be idempotent: a message can be delivered twice.
+- Every stage handler must be idempotent: a message can be delivered twice. Order inside a handler: do the work, publish results (with a deterministic message id), then ack.
+- Stage logic lives in `internal/pipeline` and knows nothing about NATS; `internal/services` wires it to the queue.
+- Text from the web is untrusted: truncate with `strings.ToValidUTF8(s[:n], "")`, never a bare slice.
+- Third-party API shapes (job boards, chromedp, discovery sources) are checked against live responses or module source before coding, and a trimmed real response goes in `testdata/`.
+- The user's resume lives only in the `settings` table. Never commit it.
 
 ## Crawling rules (enforced in code, do not weaken)
 
