@@ -15,6 +15,8 @@ const (
 	BoardAmazon          = "amazon"
 	BoardEightfold       = "eightfold"
 	BoardApple           = "apple"
+	BoardAtlassian       = "atlassian"
+	BoardOracle          = "oraclehcm"
 	BoardCustom          = "custom"
 	BoardUnknown         = "unknown"
 )

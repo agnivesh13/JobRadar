@@ -10,6 +10,7 @@ import (
 	"sync"
 	"time"
 
+	"jobradar/internal/boards"
 	"jobradar/internal/crawl"
 	"jobradar/internal/events"
 	"jobradar/internal/model"
@@ -113,7 +114,7 @@ func (s *Server) addCompany(w http.ResponseWriter, r *http.Request) {
 }
 
 func boardFrom(c model.Company) (string, string, bool) {
-	if slices.Contains([]string{model.BoardGreenhouse, model.BoardLever, model.BoardAshby, model.BoardWorkday, model.BoardKeka, model.BoardDarwinbox, model.BoardSmartRecruiters, model.BoardAmazon, model.BoardEightfold, model.BoardApple}, c.BoardType) && c.BoardToken != "" {
+	if boards.Known(c.BoardType) && c.BoardToken != "" {
 		return c.BoardType, c.BoardToken, true
 	}
 	return "", "", false

@@ -24,7 +24,7 @@ const MaxPagedPages = WorkdayMaxPages
 // Paged reports whether a board is crawled as list pages plus posting pages.
 func Paged(boardType string) bool {
 	switch boardType {
-	case model.BoardWorkday, model.BoardDarwinbox, model.BoardSmartRecruiters, model.BoardAmazon, model.BoardEightfold, model.BoardApple:
+	case model.BoardWorkday, model.BoardDarwinbox, model.BoardSmartRecruiters, model.BoardAmazon, model.BoardEightfold, model.BoardApple, model.BoardOracle:
 		return true
 	}
 	return false
@@ -47,6 +47,8 @@ func IsListPage(boardType, taskURL string) bool {
 		return isEightfoldList(u)
 	case model.BoardApple:
 		return isAppleList(u)
+	case model.BoardOracle:
+		return isOracleList(u)
 	}
 	return IsWorkdayList(taskURL)
 }
@@ -69,6 +71,8 @@ func ParseListPage(boardType string, body []byte, taskURL, country string) (List
 		return parseEightfoldList(body, u, country)
 	case model.BoardApple:
 		return parseAppleList(body, u, country)
+	case model.BoardOracle:
+		return parseOracleList(body, u, country)
 	case model.BoardWorkday, "":
 		return ParseWorkdayList(body, taskURL, country)
 	}
@@ -90,6 +94,8 @@ func ParseJobPage(boardType string, body []byte, taskURL string) (model.RawJob, 
 		return parseEightfoldJob(body, u)
 	case model.BoardApple:
 		return parseAppleJob(body, u)
+	case model.BoardOracle:
+		return parseOracleJob(body, u)
 	case model.BoardWorkday, "":
 		return ParseWorkdayJob(body, taskURL)
 	}

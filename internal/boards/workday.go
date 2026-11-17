@@ -72,11 +72,18 @@ func DisplayName(boardType, token string) string {
 		return "Amazon"
 	case model.BoardApple:
 		return "Apple"
-	case model.BoardEightfold:
-		if strings.HasSuffix(token, "/microsoft.com") {
-			return "Microsoft"
+	case model.BoardAtlassian:
+		return "Atlassian"
+	case model.BoardOracle:
+		if token == "eeho.fa.us2.oraclecloud.com/CX_45001" {
+			return "Oracle"
 		}
-		_, domain, _ := strings.Cut(token, "/")
+		return strings.SplitN(token, ".", 2)[0]
+	case model.BoardEightfold:
+		host, domain, _ := strings.Cut(token, "/")
+		if h, ok := eightfoldHosts[host]; ok {
+			return h[1]
+		}
 		return strings.SplitN(domain, ".", 2)[0]
 	}
 	return token

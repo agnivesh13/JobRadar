@@ -21,6 +21,10 @@ func TestClassify(t *testing.T) {
 		{"Backend Engineer", "", "2+ years of experience with Go\n5+ years of experience overall", Mid},
 		{"Backend Engineer", "", "We welcome freshers and recent graduates.", NewGrad},
 		{"Backend Engineer", "", "Founded 10 years ago, we get to work on hard problems.", ""},
+		// Years in the title (PhonePe's style).
+		{"Site Reliability Engineer (4 to 8 Years) Core Infrastructure Team", "", "", Mid},
+		{"Business Intelligence Engineer (1-3 Years)", "", "", Junior},
+		{"Product Solution Engineer(2-4 years)", "", "", Junior},
 	}
 	for _, c := range cases {
 		if got := Classify(c.title, c.emp, c.desc); got != c.want {

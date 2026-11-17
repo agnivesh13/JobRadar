@@ -197,19 +197,40 @@ func (r *Resolver) boardBySlug(ctx context.Context, name string) (board, token s
 			if err != nil || res.Status != 200 {
 				continue
 			}
+			var titles []string
 			if boards.Paged(b) {
 				// The first list page: country "" so that it lists postings.
-				if list, err := boards.ParseListPage(b, res.Body, feed, ""); err == nil && len(list.Postings) > 0 {
-					return b, token, len(list.Postings)
+				if list, err := boards.ParseListPage(b, res.Body, feed, ""); err == nil {
+					for _, p := range list.Postings {
+						titles = append(titles, p.Title)
+					}
 				}
-				continue
+			} else if list, err := boards.ParseFeed(b, feed, res.Body); err == nil {
+				for _, j := range list {
+					titles = append(titles, j.Title)
+				}
 			}
-			if list, err := boards.ParseFeed(b, feed, res.Body); err == nil && len(list) > 0 {
-				return b, token, len(list)
+			if len(titles) > 0 && !onlyPlaceholders(titles) {
+				return b, token, len(titles)
 			}
 		}
 	}
 	return "", "", 0
+}
+
+// placeholderRe matches the titles of test postings. A slug guessed from a
+// company's name can belong to someone else's test account: "uber" on
+// SmartRecruiters held one posting, "test-uat" (17 Nov 2026).
+var placeholderRe = regexp.MustCompile(`(?i)\b(test|testing|uat|dummy|sample|do not apply)\b`)
+
+// onlyPlaceholders reports whether every title is a test posting.
+func onlyPlaceholders(titles []string) bool {
+	for _, t := range titles {
+		if !placeholderRe.MatchString(t) {
+			return false
+		}
+	}
+	return true
 }
 
 // candidates finds websites that may belong to the company, best first.

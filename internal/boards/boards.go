@@ -49,6 +49,14 @@ func FeedURL(boardType, token string) (string, error) {
 		return eightfoldListURL(host, domain, 0, ""), nil
 	case model.BoardApple:
 		return appleListURL(1, ""), nil
+	case model.BoardAtlassian:
+		return "https://www.atlassian.com/endpoint/careers/listings", nil
+	case model.BoardOracle:
+		host, site, err := oracleParts(token)
+		if err != nil {
+			return "", err
+		}
+		return oracleListURL(host, site, 0, ""), nil
 	}
 	return "", fmt.Errorf("no feed for board type %q", boardType)
 }
@@ -62,9 +70,23 @@ func Parse(boardType string, body []byte) ([]model.RawJob, error) {
 		return parseLever(body)
 	case model.BoardAshby:
 		return parseAshby(body)
+	case model.BoardAtlassian:
+		return parseAtlassian(body)
 	}
 	return nil, fmt.Errorf("no parser for board type %q", boardType)
 }
+
+// Feed reports whether a board is read as one JSON feed per company.
+func Feed(boardType string) bool {
+	switch boardType {
+	case model.BoardGreenhouse, model.BoardLever, model.BoardAshby, model.BoardKeka, model.BoardAtlassian:
+		return true
+	}
+	return false
+}
+
+// Known reports whether a board has a reader (a feed or list pages).
+func Known(boardType string) bool { return Feed(boardType) || Paged(boardType) }
 
 // ParseFeed is Parse for boards whose job links are built from the feed's
 // own address.
@@ -113,6 +135,8 @@ var detectors = []struct {
 	{board: model.BoardAmazon, re: amazonRe, token: func([]string) string { return "amazon" }},
 	{board: model.BoardEightfold, re: eightfoldRe, token: eightfoldToken},
 	{board: model.BoardApple, re: appleRe, token: func([]string) string { return "apple" }},
+	{board: model.BoardAtlassian, re: atlassianRe, token: lowerToken},
+	{board: model.BoardOracle, re: oracleRe, token: oracleToken},
 }
 
 func lowerToken(m []string) string { return strings.ToLower(m[1]) }

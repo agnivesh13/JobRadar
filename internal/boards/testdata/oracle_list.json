@@ -1,0 +1,43 @@
+{
+ "items": [
+  {
+   "TotalJobsCount": 2843,
+   "requisitionList": [
+    {
+     "Id": "338214",
+     "Title": "Oracle Fusion Finance Functional Consultant",
+     "PostedDate": "2026-11-16",
+     "PrimaryLocation": "Taiwan, Province of China"
+    },
+    {
+     "Id": "340396",
+     "Title": "Lead Principal Site Reliability Engineer - (work in Vienna VA location)",
+     "PostedDate": "2026-11-16",
+     "PrimaryLocation": "Vienna, VA, United States"
+    }
+   ],
+   "locationsFacet": [
+    {
+     "Id": 300000000149325,
+     "Name": "United States",
+     "TotalCount": 2123
+    },
+    {
+     "Id": 100000000686062,
+     "Name": "TN, United States",
+     "TotalCount": 908
+    },
+    {
+     "Id": 100000000726870,
+     "Name": "Nashville, TN, United States",
+     "TotalCount": 907
+    },
+    {
+     "Id": 300000000106947,
+     "Name": "India",
+     "TotalCount": 328
+    }
+   ]
+  }
+ ]
+}

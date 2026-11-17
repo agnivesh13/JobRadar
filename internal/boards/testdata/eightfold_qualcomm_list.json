@@ -1,0 +1,55 @@
+{
+ "status": 200,
+ "error": {
+  "message": "",
+  "body": ""
+ },
+ "data": {
+  "positions": [
+   {
+    "id": 446720449165,
+    "displayJobId": "3095311",
+    "name": "Senior Lead Engineer - Linux Kernel Development",
+    "locations": [
+     "Hyderabad, Telangāna, India"
+    ],
+    "standardizedLocations": [
+     "Hyderabad, TS, IN"
+    ],
+    "postedTs": 1786924800,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Software Engineering",
+    "creationTs": 1786924800,
+    "isHot": 0,
+    "workLocationOption": "onsite",
+    "locationFlexibility": null,
+    "atsJobId": "3095311",
+    "positionUrl": "/careers/job/446720449165"
+   },
+   {
+    "id": 446720494921,
+    "displayJobId": "3095395",
+    "name": "DFT Engineer - Multiple Levels",
+    "locations": [
+     "Hyderabad, Telangāna, India"
+    ],
+    "standardizedLocations": [
+     "Hyderabad, TS, IN"
+    ],
+    "postedTs": 1787011200,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Hardware Engineering",
+    "creationTs": 1787011200,
+    "isHot": 0,
+    "workLocationOption": "onsite",
+    "locationFlexibility": null,
+    "atsJobId": "3095395",
+    "positionUrl": "/careers/job/446720494921"
+   }
+  ],
+  "count": 535
+ },
+ "metadata": null
+}

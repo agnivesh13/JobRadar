@@ -77,6 +77,7 @@ type ScoreInput struct {
 
 type ScoreUpdate struct {
 	ID          int64
+	Experience  string
 	SalaryState string
 	Matched     bool
 	Flags       []string
@@ -103,9 +104,10 @@ func (s *Store) ApplyScores(ctx context.Context, updates []ScoreUpdate) error {
 		}
 		batch.Queue(`UPDATE jobs SET salary_state = $2, matched = $3, flags = $4,
 			fit_score  = CASE WHEN llm_score IS NULL THEN $5 ELSE ($5 + llm_score) / 2 END,
-			fit_reason = CASE WHEN llm_score IS NULL THEN $6 ELSE $6 || '; LLM: ' || llm_reason END
+			fit_reason = CASE WHEN llm_score IS NULL THEN $6 ELSE $6 || '; LLM: ' || llm_reason END,
+			experience = $7
 			WHERE id = $1`,
-			u.ID, u.SalaryState, u.Matched, u.Flags, u.FitScore, u.FitReason)
+			u.ID, u.SalaryState, u.Matched, u.Flags, u.FitScore, u.FitReason, u.Experience)
 	}
 	return s.Pool.SendBatch(ctx, batch).Close()
 }

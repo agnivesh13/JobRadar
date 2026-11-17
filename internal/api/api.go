@@ -209,11 +209,21 @@ func (s *Server) getSettings(w http.ResponseWriter, r *http.Request) {
 
 // putSettings saves and then re-scores every open job in the background.
 func (s *Server) putSettings(w http.ResponseWriter, r *http.Request) {
-	var st score.Settings
-	if !readJSON(w, r, &st) {
+	var body struct {
+		score.Settings
+		// GET wraps the settings in {"settings": ...}. Sending that wrapper back
+		// would decode as empty settings and wipe the resume and keywords
+		// (it happened on 17 Nov 2026), so it is refused.
+		Wrapped json.RawMessage `json:"settings"`
+	}
+	if !readJSON(w, r, &body) {
 		return
 	}
-	if err := score.SaveSettings(r.Context(), s.Deps.Store, st); err != nil {
+	if body.Wrapped != nil {
+		writeErr(w, 400, `send the settings object itself, not the {"settings": ...} response of GET`)
+		return
+	}
+	if err := score.SaveSettings(r.Context(), s.Deps.Store, body.Settings); err != nil {
 		s.fail(w, err)
 		return
 	}

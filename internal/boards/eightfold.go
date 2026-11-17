@@ -30,14 +30,24 @@ import (
 //   - The site sometimes answers 429 "Please try again later"; the client
 //     backs off and the task is retried.
 //
-// Only Microsoft's host was checked, so only it is detected. The token is
-// "{host}/{domain}".
+// Only hosts checked live are detected (eightfoldHosts). Qualcomm's
+// (careers.qualcomm.com, checked 17 Nov 2026) has the same robots.txt and
+// response shape as Microsoft's. The token is "{host}/{domain}".
 
 const eightfoldPageSize = 10
 
-var eightfoldRe = regexp.MustCompile(`(?i)\b(apply\.careers\.microsoft\.com)/careers`)
+// eightfoldHosts maps each checked host to its domain parameter and company name.
+var eightfoldHosts = map[string][2]string{
+	"apply.careers.microsoft.com": {"microsoft.com", "Microsoft"},
+	"careers.qualcomm.com":        {"qualcomm.com", "Qualcomm"},
+}
 
-func eightfoldToken(m []string) string { return strings.ToLower(m[1]) + "/microsoft.com" }
+var eightfoldRe = regexp.MustCompile(`(?i)\b(apply\.careers\.microsoft\.com|careers\.qualcomm\.com)/(?:careers|api/pcsx)`)
+
+func eightfoldToken(m []string) string {
+	host := strings.ToLower(m[1])
+	return host + "/" + eightfoldHosts[host][0]
+}
 
 func eightfoldParts(token string) (host, domain string, err error) {
 	host, domain, ok := strings.Cut(token, "/")

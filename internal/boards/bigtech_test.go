@@ -150,3 +150,104 @@ func TestEightfold(t *testing.T) {
 		t.Errorf("description: %.200q", j.Description)
 	}
 }
+
+func TestAtlassian(t *testing.T) {
+	b, tok, ok := Detect("https://www.atlassian.com/company/careers/all-jobs")
+	if !ok || b != model.BoardAtlassian || tok != "atlassian" || DisplayName(b, tok) != "Atlassian" || !Feed(b) || Paged(b) {
+		t.Fatalf("Detect = %q %q %v", b, tok, ok)
+	}
+	if _, _, ok := Detect("https://www.atlassian.com/software/jira"); ok {
+		t.Error("a product page is not the careers feed")
+	}
+	jobs, err := Parse(b, load(t, "atlassian.json"))
+	if err != nil || len(jobs) != 2 {
+		t.Fatalf("jobs = %d, %v", len(jobs), err)
+	}
+	j := jobs[0]
+	if j.Title != "Data Platform Engineer" || j.URL != "https://www.atlassian.com/company/careers/details/27589" || j.EmploymentType != "Full-Time" {
+		t.Errorf("unexpected job: %+v", j)
+	}
+	if j.Location != "Bengaluru - India - Bengaluru, 560071 India / Remote - Remote" || !j.Remote {
+		t.Errorf("location = %q, remote %v", j.Location, j.Remote)
+	}
+	if j.PostedAt == nil || j.PostedAt.Format("2006-01-02") != "2026-10-29" {
+		t.Errorf("posted = %v", j.PostedAt)
+	}
+	if !strings.Contains(j.Description, "Qualifications") || strings.ContainsAny(j.Description, "<>") {
+		t.Errorf("description: %.200q", j.Description)
+	}
+}
+
+func TestOracle(t *testing.T) {
+	const host = "https://eeho.fa.us2.oraclecloud.com"
+	const api = host + "/hcmRestApi/resources/latest/recruitingCEJobRequisitions?onlyData=true&expand=requisitionList.secondaryLocations,locationsFacet&finder=findReqs;siteNumber=CX_45001,limit=25,"
+	b, tok, ok := Detect(host + "/hcmUI/CandidateExperience/en/sites/CX_45001/job/346195")
+	if !ok || b != model.BoardOracle || tok != "eeho.fa.us2.oraclecloud.com/CX_45001" || DisplayName(b, tok) != "Oracle" {
+		t.Fatalf("Detect = %q %q %v", b, tok, ok)
+	}
+	first, err := FeedURL(b, tok)
+	if err != nil || first != api+"offset=0,sortBy=POSTING_DATES_DESC,facetsList=LOCATIONS" || !IsListPage(b, first) {
+		t.Fatalf("FeedURL = %q, %v", first, err)
+	}
+	body := load(t, "oracle_list.json")
+
+	// The first page narrows to the country through the LOCATIONS facet.
+	list, err := ParseListPage(b, body, first, "India")
+	if err != nil || list.Refine != api+"offset=0,sortBy=POSTING_DATES_DESC,locationId=300000000106947" {
+		t.Fatalf("refine = %+v, %v", list, err)
+	}
+	// The narrowed list names its postings and the next page (2843 in the fixture).
+	list, err = ParseListPage(b, body, list.Refine, "India")
+	if err != nil || len(list.Postings) != 2 || list.Next != api+"offset=25,sortBy=POSTING_DATES_DESC,locationId=300000000106947" {
+		t.Fatalf("list = %+v, %v", list, err)
+	}
+	p := list.Postings[0]
+	if p.Title != "Oracle Fusion Finance Functional Consultant" || p.URL != host+"/hcmUI/CandidateExperience/en/sites/CX_45001/job/338214" ||
+		p.DetailURL != host+`/hcmRestApi/resources/latest/recruitingCEJobRequisitionDetails?expand=all&onlyData=true&finder=ById;Id=%22338214%22,siteNumber=CX_45001` {
+		t.Errorf("posting = %+v", p)
+	}
+	if !IsListPage(b, list.Next) || IsListPage(b, p.DetailURL) {
+		t.Error("list page and posting page are confused")
+	}
+	// A country with no facet entry reads the unfiltered page as the list.
+	if list, _ = ParseListPage(b, body, first, "Atlantis"); list.Refine != "" || len(list.Postings) != 2 {
+		t.Errorf("unknown country: %+v", list)
+	}
+	if list, _ = ParseListPage(b, body, api+"offset=2825,sortBy=POSTING_DATES_DESC", ""); list.Next != "" {
+		t.Errorf("last page: next = %q", list.Next)
+	}
+	// A count without postings (the response to a request missing "expand") is an error, not an empty list.
+	if _, err := ParseListPage(b, []byte(`{"items":[{"TotalJobsCount":2843,"locationsFacet":[]}]}`), first, "India"); err == nil {
+		t.Error("postings missing from a non-empty search must be an error")
+	}
+
+	detail := host + `/hcmRestApi/resources/latest/recruitingCEJobRequisitionDetails?expand=all&onlyData=true&finder=ById;Id=%22346195%22,siteNumber=CX_45001`
+	j, err := ParseJobPage(b, load(t, "oracle_job.json"), detail)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if j.Title != "Credit & Collections Analyst 2-Fin(Portuguese and Spanish)" || j.Location != "BENGALURU, KARNATAKA, India" || j.Department != "Finance" {
+		t.Errorf("unexpected job: %q @ %q (%s)", j.Title, j.Location, j.Department)
+	}
+	if j.URL != host+"/hcmUI/CandidateExperience/en/sites/CX_45001/job/346195" || j.PostedAt == nil || j.PostedAt.Format("2006-01-02") != "2026-11-17" {
+		t.Errorf("url = %q, posted = %v", j.URL, j.PostedAt)
+	}
+	if !strings.Contains(j.Description, "Responsibilities") || strings.ContainsAny(j.Description, "<>") {
+		t.Errorf("description: %.200q", j.Description)
+	}
+}
+
+func TestEightfoldQualcomm(t *testing.T) {
+	b, tok, ok := Detect("https://careers.qualcomm.com/careers?location=India")
+	if !ok || b != model.BoardEightfold || tok != "careers.qualcomm.com/qualcomm.com" || DisplayName(b, tok) != "Qualcomm" {
+		t.Fatalf("Detect = %q %q %v", b, tok, ok)
+	}
+	const base = "https://careers.qualcomm.com/api/pcsx/search?domain=qualcomm.com&query="
+	list, err := ParseListPage(b, load(t, "eightfold_qualcomm_list.json"), base+"&start=0&location=India", "India")
+	if err != nil || len(list.Postings) != 2 || list.Next != base+"&start=10&location=India" {
+		t.Fatalf("list = %+v, %v", list, err)
+	}
+	if p := list.Postings[0]; p.Title != "Senior Lead Engineer - Linux Kernel Development" || p.URL != "https://careers.qualcomm.com/careers/job/446720449165" {
+		t.Errorf("posting = %+v", p)
+	}
+}

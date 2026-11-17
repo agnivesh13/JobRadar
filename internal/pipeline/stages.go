@@ -238,26 +238,20 @@ func NewCrawlID(companyID int64) string {
 // TaskFor builds the first fetch task of a company crawl.
 func TaskFor(c model.Company, crawlID, priority, searchID string) (model.FetchTask, error) {
 	t := model.FetchTask{CrawlID: crawlID, CompanyID: c.ID, Company: c.Name, BoardType: c.BoardType, Priority: priority, SearchID: searchID}
-	switch c.BoardType {
-	case model.BoardGreenhouse, model.BoardLever, model.BoardAshby, model.BoardKeka:
+	switch {
+	case boards.Known(c.BoardType):
 		u, err := boards.FeedURL(c.BoardType, c.BoardToken)
 		if err != nil {
 			return t, err
 		}
 		t.URL, t.Kind = u, model.KindBoardFeed
-		return t, nil
-	case model.BoardWorkday, model.BoardDarwinbox, model.BoardSmartRecruiters, model.BoardAmazon, model.BoardEightfold, model.BoardApple:
-		u, err := boards.FeedURL(c.BoardType, c.BoardToken)
-		if err != nil {
-			return t, err
+		if boards.Paged(c.BoardType) {
+			t.Kind = model.KindWorkday
 		}
-		t.URL, t.Kind = u, model.KindWorkday
 		return t, nil
-	case model.BoardCustom:
-		if c.CareersURL != "" {
-			t.URL, t.Kind = c.CareersURL, model.KindSitePage
-			return t, nil
-		}
+	case c.BoardType == model.BoardCustom && c.CareersURL != "":
+		t.URL, t.Kind = c.CareersURL, model.KindSitePage
+		return t, nil
 	}
 	return t, fmt.Errorf("company %q has no crawlable source yet (board type %q)", c.Name, c.BoardType)
 }

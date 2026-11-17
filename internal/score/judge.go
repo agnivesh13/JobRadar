@@ -113,9 +113,19 @@ func (j *Judge) Judge(ctx context.Context, companyID int64, raw model.RawJob) (p
 	return v, nil
 }
 
-// RescoreAll re-applies the current settings to every open job. Experience
-// and the parsed salary figures are kept; only what depends on the settings
-// is recomputed.
+// reclassify re-runs the experience rules on a stored job, so a rule change
+// reaches jobs that are never fetched again (paged boards skip known
+// postings). "intern" is kept: it can come from the employment type, which
+// is not stored.
+func reclassify(job store.ScoreInput) string {
+	if job.Experience == Intern {
+		return Intern
+	}
+	return Classify(job.Title, "", job.Description)
+}
+
+// RescoreAll re-applies the current settings and the experience rules to
+// every open job. The parsed salary figures are kept.
 func (j *Judge) RescoreAll(ctx context.Context) (int, error) {
 	j.Invalidate()
 	s, signals, err := j.load(ctx)
@@ -144,11 +154,12 @@ func (j *Judge) RescoreAll(ctx context.Context) (int, error) {
 				for i := w; i < len(jobs); i += workers {
 					job := jobs[i]
 					sig := signals[job.CompanyID]
+					exp := reclassify(job)
 					res := Evaluate(Input{
 						Title: job.Title, Location: job.Location, Remote: job.Remote, Description: job.Description,
-						Experience: job.Experience, SalaryMin: job.SalaryMin, SalaryMax: job.SalaryMax,
+						Experience: exp, SalaryMin: job.SalaryMin, SalaryMax: job.SalaryMax,
 					}, s, Signal{PayTier: sig.PayTier, FundingStage: sig.FundingStage, PaysAboveFloor: sig.PaysAboveFloor})
-					updates[i] = store.ScoreUpdate{ID: job.ID, SalaryState: res.SalaryState, Matched: res.Matched,
+					updates[i] = store.ScoreUpdate{ID: job.ID, Experience: exp, SalaryState: res.SalaryState, Matched: res.Matched,
 						Flags: res.Flags, FitScore: res.FitScore, FitReason: res.FitReason}
 				}
 			}(w)

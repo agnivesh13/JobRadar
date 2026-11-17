@@ -14,6 +14,7 @@ One file per build phase. Each one records what was built, why it was built that
 | 7. Workday career sites (added after the plan) | [phase-7-workday.md](phase-7-workday.md) | Done; verified on two live sites |
 | 8. Keka, Darwinbox, SmartRecruiters (added after the plan) | [phase-8-keka-darwinbox-smartrecruiters.md](phase-8-keka-darwinbox-smartrecruiters.md) | Keka and SmartRecruiters verified live; Darwinbox refuses the crawler |
 | 9. Big companies: Amazon, Microsoft, Apple, Swiggy, Eternal (added after the plan) | [phase-9-big-companies.md](phase-9-big-companies.md) | Amazon, Microsoft, Apple, Swiggy crawled; Eternal hires by referral only; Google and Meta excluded by their robots.txt |
+| 10. Twenty more companies: Atlassian and Oracle boards, Qualcomm on Eightfold (added after the plan) | [phase-10-more-companies.md](phase-10-more-companies.md) | 16 crawled; Uber, Flipkart, SAP, Goldman not crawlable; J.P. Morgan manual |
 
 ## How the phases were split
 

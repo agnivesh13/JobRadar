@@ -49,22 +49,33 @@ func Classify(title, employmentType, description string) string {
 	case newGradRe.MatchString(title):
 		return NewGrad
 	}
-	if years, ok := minYears(description); ok {
-		switch {
-		case years == 0:
-			return NewGrad
-		case years <= 2:
-			return Junior
-		case years <= 5:
-			return Mid
-		default:
-			return Senior
+	// "Site Reliability Engineer (4 to 8 Years)": years in the title need no
+	// "experience" word next to them; the lower bound decides.
+	if m := yearsRe.FindStringSubmatch(title); m != nil {
+		if n, _ := strconv.Atoi(m[1]); n <= 20 {
+			return levelForYears(n)
 		}
+	}
+	if years, ok := minYears(description); ok {
+		return levelForYears(years)
 	}
 	if descNewGradRe.MatchString(description) {
 		return NewGrad
 	}
 	return ""
+}
+
+func levelForYears(years int) string {
+	switch {
+	case years == 0:
+		return NewGrad
+	case years <= 2:
+		return Junior
+	case years <= 5:
+		return Mid
+	default:
+		return Senior
+	}
 }
 
 // minYears returns the lowest "years of experience" figure the text asks for.

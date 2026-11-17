@@ -97,6 +97,11 @@ func TestHostedBoardsByName(t *testing.T) {
 	if err != nil || res.Board != "smartrecruiters" || res.BoardToken != "acme" {
 		t.Fatalf("smartrecruiters: %+v, %v", res, err)
 	}
+	// A board holding only test postings is someone's test account, not the company.
+	uat := fakeWeb{"https://careers.smartrecruiters.com/acme/api/more?page=0": `<li class="opening-job"><a href="https://jobs.smartrecruiters.com/acme/3743990000051828-test-uat" class="js-job-ad-link"><h4 class="job-title">Test UAT</h4></a></li>`}
+	if res, _ := (&Resolver{Fetch: uat}).Resolve(context.Background(), "Acme", ""); res.Board == "smartrecruiters" {
+		t.Errorf("a test account was taken for the company: %+v", res)
+	}
 }
 
 func TestWorkdayByName(t *testing.T) {
