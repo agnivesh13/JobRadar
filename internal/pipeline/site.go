@@ -14,7 +14,7 @@ import (
 // Start registers whatever a task needs before it is published. A site
 // crawl's first page must be in the frontier so its completion is counted.
 func Start(ctx context.Context, st *store.Store, t model.FetchTask) error {
-	if t.Kind == model.KindSitePage {
+	if t.Kind == model.KindSitePage || t.Kind == model.KindWorkday {
 		return st.SeedCrawlPage(ctx, t.CrawlID, t.URL)
 	}
 	return nil
@@ -66,11 +66,21 @@ func (e *Extractor) sitePage(ctx context.Context, f model.Fetched) (Extracted, e
 					// Another company already owns this board: carry on as a plain site crawl.
 					e.Log.Info("board already belongs to another company", "board", page.Board, "token", page.BoardTok)
 				} else {
+					if page.Board == model.BoardWorkday {
+						// Workday is crawled page by page through this same frontier;
+						// its first page must be claimed before this one is finished.
+						if err := e.Store.SeedCrawlPage(ctx, t.CrawlID, feed); err != nil {
+							return out, err
+						}
+					}
 					if _, err := e.Store.FinishSitePage(ctx, t.CrawlID, t.URL, 0, nil, extract.MaxPages); err != nil {
 						return out, err
 					}
 					next := t
 					next.URL, next.Kind, next.BoardType, next.Depth, next.Render, next.Force = feed, model.KindBoardFeed, page.Board, 0, false, true
+					if page.Board == model.BoardWorkday {
+						next.Kind, next.Force = model.KindWorkday, t.Force
+					}
 					out.Tasks = []model.FetchTask{next}
 					out.Note = fmt.Sprintf("board detected: %s (%s)", page.Board, page.BoardTok)
 					return out, nil // the feed task closes this crawl
@@ -101,7 +111,7 @@ func (e *Extractor) sitePage(ctx context.Context, f model.Fetched) (Extracted, e
 		// company we may not know yet. Queue it for discovery.
 		for _, l := range page.Links {
 			if b, tok, ok := boards.Detect(l.URL); ok && !extract.SameSite(l.URL, t.URL) {
-				e.Store.AddCandidate(ctx, store.Candidate{Name: tok, BoardType: b, BoardToken: tok, Source: "outbound", Detail: "linked from " + t.URL})
+				e.Store.AddCandidate(ctx, store.Candidate{Name: boards.DisplayName(b, tok), BoardType: b, BoardToken: tok, Source: "outbound", Detail: "linked from " + t.URL})
 			}
 		}
 		follow := extract.Follow(page, t.URL, t.Depth)

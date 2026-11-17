@@ -100,7 +100,7 @@ func (r *Resolver) Resolve(ctx context.Context, input, pick string) (Result, err
 
 	// The input may already be a board link or a website.
 	if b, tok, ok := boards.Detect(input); ok {
-		res.Board, res.BoardToken, res.Name = b, tok, tok
+		res.Board, res.BoardToken, res.Name = b, tok, boards.DisplayName(b, tok)
 		r.step("ok", "that is a "+b+" board link", input)
 		return res, nil
 	}

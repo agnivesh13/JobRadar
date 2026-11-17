@@ -116,7 +116,7 @@ func runCrawl(ctx context.Context, cfg config.Config, args []string) error {
 	client := crawl.NewClient(cfg.UserAgent(), &store.Limiter{Store: st, Interval: cfg.DomainInterval}, cfg.FetchTimeout, cfg.MaxBodyBytes)
 	local := &pipeline.Local{
 		Fetcher:   &pipeline.Fetcher{Store: st, Client: client, Log: log},
-		Extractor: &pipeline.Extractor{Store: st, Log: log},
+		Extractor: &pipeline.Extractor{Store: st, Log: log, WorkdayCountry: cfg.WorkdayCountry},
 		Scorer:    &pipeline.Scorer{Store: st, Judge: &score.Judge{Store: st, Rates: rates(cfg)}, Log: log},
 		Workers:   *workers,
 		Force:     *force,

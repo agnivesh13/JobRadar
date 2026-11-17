@@ -35,6 +35,8 @@ type Config struct {
 	RendererTabs int
 	SearxngURL   string // optional self-hosted search
 
+	WorkdayCountry string // Workday crawls are narrowed to this country when the site offers the filter ("" = all)
+
 	LLMBaseURL string // OpenAI-compatible endpoint (Groq, Ollama); "" = LLM off
 	LLMAPIKey  string
 	LLMModel   string
@@ -64,6 +66,7 @@ func Load() Config {
 		RendererURL:        env("RENDERER_URL", ""),
 		RendererTabs:       envInt("RENDERER_TABS", 2),
 		SearxngURL:         env("SEARXNG_URL", ""),
+		WorkdayCountry:     env("WORKDAY_COUNTRY", "India"),
 		LLMBaseURL:         env("LLM_BASE_URL", ""),
 		LLMAPIKey:          env("LLM_API_KEY", ""),
 		LLMModel:           env("LLM_MODEL", ""),

@@ -113,7 +113,7 @@ func (s *Server) addCompany(w http.ResponseWriter, r *http.Request) {
 }
 
 func boardFrom(c model.Company) (string, string, bool) {
-	if slices.Contains([]string{model.BoardGreenhouse, model.BoardLever, model.BoardAshby}, c.BoardType) && c.BoardToken != "" {
+	if slices.Contains([]string{model.BoardGreenhouse, model.BoardLever, model.BoardAshby, model.BoardWorkday}, c.BoardType) && c.BoardToken != "" {
 		return c.BoardType, c.BoardToken, true
 	}
 	return "", "", false

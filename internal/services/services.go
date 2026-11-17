@@ -259,7 +259,7 @@ func RunExtractor(ctx context.Context, d *app.Deps, concurrency int) error {
 	}
 	var busy atomic.Int64
 	ev := emitter(ctx, d, &busy)
-	extractor := &pipeline.Extractor{Store: d.Store, Log: d.Log}
+	extractor := &pipeline.Extractor{Store: d.Store, Log: d.Log, WorkdayCountry: d.Cfg.WorkdayCountry}
 	extractor.CanRender = func() bool { return d.Queue.HasWorkers(ctx, queue.ConsRender) }
 	extractor.LLM = llmExtractor(d)
 
@@ -290,7 +290,7 @@ func RunExtractor(ctx context.Context, d *app.Deps, concurrency int) error {
 			if len(ex.Jobs) == 0 && ex.Render == nil && len(ex.Tasks) == 0 {
 				ee.Outcome = "error"
 			}
-		case t.Kind == model.KindSitePage:
+		case t.Kind == model.KindSitePage || t.Kind == model.KindWorkday:
 			ee.Detail = fmt.Sprintf("%d jobs, %d links to follow", len(ex.Jobs), len(ex.Tasks))
 		default:
 			ee.Detail = fmt.Sprintf("%d jobs", len(ex.Jobs))

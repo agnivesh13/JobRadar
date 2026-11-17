@@ -1,0 +1,67 @@
+{
+ "total": 33,
+ "jobPostings": [
+  {
+   "title": "Enterprise Account Manager",
+   "externalPath": "/job/New-York-Remote/Enterprise-Account-Manager_JR103773",
+   "locationsText": "New York Remote",
+   "postedOn": "Posted 3 Days Ago",
+   "bulletFields": [
+    "JR103773"
+   ]
+  },
+  {
+   "title": "Principal Technical Program Manager",
+   "externalPath": "/job/Mumbai---Work-From-Office/Principal-Technical-Program-Manager_JR103784-1",
+   "locationsText": "Mumbai - Work From Office",
+   "postedOn": "Posted 3 Days Ago",
+   "bulletFields": [
+    "JR103784"
+   ]
+  },
+  {
+   "title": "Associate Technical Program Manager",
+   "externalPath": "/job/Mumbai-Remote/Associate-Technical-Program-Manager_JR103785",
+   "locationsText": "Mumbai Remote",
+   "postedOn": "Posted 3 Days Ago",
+   "bulletFields": [
+    "JR103785"
+   ]
+  }
+ ],
+ "facets": [
+  {
+   "facetParameter": "timeType",
+   "descriptor": "Time Type",
+   "values": [
+    {
+     "descriptor": "Full time",
+     "id": "82babb82cec6011cb904bf090a820007",
+     "count": 33
+    }
+   ]
+  },
+  {
+   "facetParameter": "locationMainGroup",
+   "values": [
+    {
+     "facetParameter": "locations",
+     "descriptor": "Locations",
+     "values": [
+      {
+       "descriptor": "Dublin (Ireland) - Onsite",
+       "id": "7b3f1ea1edae10014e4dec0b767e0000",
+       "count": 1
+      },
+      {
+       "descriptor": "India Remote",
+       "id": "07564020a4451005a3027f2ca2d60000",
+       "count": 16
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "userAuthenticated": false
+}

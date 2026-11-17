@@ -1,0 +1,49 @@
+{
+ "jobPostingInfo": {
+  "id": "8fc041c0a4d61020cef2791236f70000",
+  "title": "Senior Memory System Architect",
+  "jobDescription": "<p>NVIDIA is searching for experienced candidates with a track record of architecture development to join our memory system architecture team!  This team drives memory system architecture in NVIDIA’s world changing SOCs for deep-learning, autonomous vehicles and robotics, mobile systems, server systems, and gaming. NVIDIA has some of the most forward-thinking and hardworking people in the world working for us. Are you a creative and autonomous engineer? If so, we want to hear from you!</p><p></p><p><b>What You Will Be Doing:</b></p><ul><li><p>Driving development of architecture and micro-architecture to improve the state-of-the-art in memory systems optimizing along the axes of performance, power efficiency, complexity, area, effort, and schedule.</p></li><li><p>Performance modeling and simulation of features to improve memory system performance and efficiency.</p></li><li><p>Implementing and maintaining detailed and high-level performance models.</p></li><li><p>Analyzing benchmarks, application workloads, and performance simulation results to identify tradeoffs in areas of micro-architectural optimizations.</p></li><li><p>Debugging performance and functional issues with high-level models, RTL simulation, and silicon.</p></li></ul><p></p><p><b>What we need to see:</b></p><ul><li><p>M.S. or Ph.D. in CS, CE, or EE or equivalent experience</p></li><li><p>3&#43; years experience in SoC or memory system architecture and performance</p></li><li><p>Deep understanding of memory subsystems – caches and coherence protocols, DDR and memory controller architecture, on-chip interconnects, address translation</p></li><li><p>Strong communication and interpersonal skills along with the ability to work in a dynamic, product oriented, distributed team.</p></li><li><p>Exposure/coursework related to Digital systems and VLSI design, Computer Architecture, C/C&#43;&#43; programming languages.</p></li><li><p>Software development experience with C&#43;&#43;, python and/or perl. Verilog or SV/UVM are a plus.</p></li></ul><p></p><p><b>Ways To Stand Out from the Crowd</b></p><ul><li><p>Significant experience with performance modeling or performance verification.</p></li><li><p>Experience debugging and solving complex performance issues.</p></li></ul><p style=\"text-align:inherit\"></p><p style=\"text-align:inherit\"></p>Your base salary will be determined based on your location, experience, and other objective job-related factors. The expected base salary ranges for this position are:<br>150,000 USD – 286,000 USD for Level 3; and 183,750 USD – 351,000 USD for Level 4.<div><div><div><div><div><div><div><p></p><p><span>You will also be eligible for equity and <a href=\"https://www.nvidia.com/en-us/benefits/\" target=\"_blank\">benefits</a>.</span></p><p></p></div></div></div></div></div></div></div>Applications for this job will be accepted at least until November 20, 2026.<p></p><p>This posting is for an existing vacancy. </p><p>NVIDIA uses AI tools in its recruiting processes.</p><p></p>NVIDIA is committed to fostering an inclusive work environment and proud to be an equal opportunity employer. As we highly value diversity in our current and future employees, we do not discriminate (including in our hiring and promotion practices) on the basis of race, religion, color, national origin, gender, gender expression, sexual orientation, age, marital status, veteran status, disability status or any other characteristic protected by law.<p style=\"text-align:inherit\"></p><p style=\"text-align:inherit\"></p>",
+  "location": "US, CA, Santa Clara",
+  "additionalLocations": [
+   "US, TX, Austin",
+   "US, NC, Durham"
+  ],
+  "postedOn": "Posted Today",
+  "startDate": "2026-11-16",
+  "timeType": "Full time",
+  "jobReqId": "JR2022582",
+  "jobPostingId": "Senior-Memory-System-Architect_JR2022582",
+  "jobPostingSiteId": "NVIDIAExternalCareerSite",
+  "country": {
+   "descriptor": "United States of America",
+   "id": "bc33aa3152ec42d4995f4791a106ed09"
+  },
+  "canApply": true,
+  "posted": true,
+  "includeResumeParsing": true,
+  "jobRequisitionLocation": {
+   "descriptor": "US, CA, Santa Clara",
+   "country": {
+    "descriptor": "United States of America",
+    "id": "bc33aa3152ec42d4995f4791a106ed09",
+    "alpha2Code": "US"
+   }
+  },
+  "externalUrl": "https://nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite/job/US-CA-Santa-Clara/Senior-Memory-System-Architect_JR2022582"
+ },
+ "hiringOrganization": {
+  "name": "2100 NVIDIA USA",
+  "url": ""
+ },
+ "similarJobs": [
+  {
+   "title": "Senior Solutions Architect, DL Training",
+   "externalPath": "/job/US-WA-Seattle/Senior-Solutions-Architect--DL-Training_JR2028701",
+   "timeType": "Full time",
+   "locationsText": "2 Locations",
+   "postedOn": "Posted 11 Days Ago",
+   "startDate": "2026-11-05"
+  }
+ ],
+ "userAuthenticated": false
+}

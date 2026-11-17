@@ -36,7 +36,13 @@ type Fetcher struct {
 // means "retry later"; permanent outcomes (blocked, 404) come back in Fetched.
 func (f *Fetcher) Handle(ctx context.Context, t model.FetchTask) (model.Fetched, error) {
 	out := model.Fetched{Task: t}
-	res, err := f.Client.Fetch(ctx, t.URL)
+	var res *crawl.Result
+	var err error
+	if endpoint, payload, ok := boards.WorkdayRequest(t.URL); ok && t.Kind == model.KindWorkday {
+		res, err = f.Client.PostJSON(ctx, endpoint, payload) // a Workday list page is a POST
+	} else {
+		res, err = f.Client.Fetch(ctx, t.URL)
+	}
 	switch {
 	case errors.Is(err, crawl.ErrBanned), errors.Is(err, crawl.ErrRobots):
 		out.Blocked = err.Error()
@@ -59,8 +65,8 @@ func (f *Fetcher) Handle(ctx context.Context, t model.FetchTask) (model.Fetched,
 	sum := sha256.Sum256(res.Body)
 	out.Hash = hex.EncodeToString(sum[:])
 	out.PageID, out.Unchanged, err = f.Store.SavePage(ctx, t.CompanyID, t.URL, t.Kind, out.Hash, res.Status, false, res.Body)
-	if t.Force || t.Kind == model.KindSitePage {
-		out.Unchanged = false // site pages are always re-read: their links matter too
+	if t.Force || t.Kind == model.KindSitePage || t.Kind == model.KindWorkday {
+		out.Unchanged = false // frontier pages are always re-read: their links matter too
 	}
 	return out, err
 }
@@ -74,6 +80,8 @@ type Extractor struct {
 	CanRender func() bool
 	// LLM is the last-resort extractor for pages nothing else understood (optional).
 	LLM func(ctx context.Context, p extract.Page, pageURL string) (model.RawJob, bool)
+	// WorkdayCountry narrows Workday crawls to one country ("" = everything).
+	WorkdayCountry string
 }
 
 // Extracted is everything one page yields.
@@ -88,6 +96,9 @@ type Extracted struct {
 func (e *Extractor) Handle(ctx context.Context, f model.Fetched) (Extracted, error) {
 	if f.Task.Kind == model.KindSitePage {
 		return e.sitePage(ctx, f)
+	}
+	if f.Task.Kind == model.KindWorkday {
+		return e.workdayPage(ctx, f)
 	}
 	t := f.Task
 	done := &model.CrawlDone{CrawlID: t.CrawlID, CompanyID: t.CompanyID, Company: t.Company, SearchID: t.SearchID}
@@ -234,6 +245,13 @@ func TaskFor(c model.Company, crawlID, priority, searchID string) (model.FetchTa
 			return t, err
 		}
 		t.URL, t.Kind = u, model.KindBoardFeed
+		return t, nil
+	case model.BoardWorkday:
+		u, err := boards.FeedURL(c.BoardType, c.BoardToken)
+		if err != nil {
+			return t, err
+		}
+		t.URL, t.Kind = u, model.KindWorkday
 		return t, nil
 	case model.BoardCustom:
 		if c.CareersURL != "" {

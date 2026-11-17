@@ -8,6 +8,7 @@ const (
 	BoardGreenhouse = "greenhouse"
 	BoardLever      = "lever"
 	BoardAshby      = "ashby"
+	BoardWorkday    = "workday"
 	BoardCustom     = "custom"
 	BoardUnknown    = "unknown"
 )
@@ -16,6 +17,7 @@ const (
 const (
 	KindBoardFeed = "board_feed" // one JSON document with every job of a company
 	KindSitePage  = "site_page"  // an HTML page on a company's own site
+	KindWorkday   = "workday"    // a Workday list page or posting (JSON), crawled through the site frontier
 )
 
 type Company struct {

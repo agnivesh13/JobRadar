@@ -347,3 +347,34 @@ func (s *Store) FinishCrawl(ctx context.Context, d model.CrawlDone) (closed int6
 	}
 	return closed, dropped, tx.Commit(ctx)
 }
+
+// TouchJobs marks the open postings of a company found at any of the given
+// URLs as seen by this crawl, and returns which URLs were known. A paged
+// board (Workday) uses it to skip re-downloading postings it already holds.
+// Idempotent.
+func (s *Store) TouchJobs(ctx context.Context, companyID int64, crawlID string, urls []string) (map[string]bool, error) {
+	known := map[string]bool{}
+	if len(urls) == 0 {
+		return known, nil
+	}
+	rows, err := s.Pool.Query(ctx, `
+		UPDATE jobs SET last_crawl_id = $2, last_seen_at = now(), missed_crawls = 0
+		WHERE company_id = $1 AND closed_at IS NULL AND (url = ANY ($3) OR alt_urls && $3)
+		RETURNING url, alt_urls`, companyID, crawlID, urls)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var u string
+		var alts []string
+		if err := rows.Scan(&u, &alts); err != nil {
+			return nil, err
+		}
+		known[u] = true
+		for _, a := range alts {
+			known[a] = true
+		}
+	}
+	return known, rows.Err()
+}

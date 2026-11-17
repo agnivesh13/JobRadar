@@ -25,6 +25,13 @@ func FeedURL(boardType, token string) (string, error) {
 		return "https://api.lever.co/v0/postings/" + t + "?mode=json", nil
 	case model.BoardAshby:
 		return "https://api.ashbyhq.com/posting-api/job-board/" + t + "?includeCompensation=true", nil
+	case model.BoardWorkday:
+		// The first list page; see workday.go for how the rest is reached.
+		base, err := workdayBase(token)
+		if err != nil {
+			return "", err
+		}
+		return workdayListURL(base, 0, ""), nil
 	}
 	return "", fmt.Errorf("no feed for board type %q", boardType)
 }
@@ -48,7 +55,10 @@ func Detect(rawURL string) (boardType, token string, ok bool) {
 	for _, d := range detectors {
 		if m := d.re.FindStringSubmatch(rawURL); m != nil {
 			tok := m[1]
-			if reserved[strings.ToLower(tok)] {
+			if d.token != nil {
+				tok = d.token(m)
+			}
+			if reserved[strings.ToLower(m[len(m)-1])] {
 				continue
 			}
 			return d.board, tok, true
@@ -57,18 +67,20 @@ func Detect(rawURL string) (boardType, token string, ok bool) {
 	return "", "", false
 }
 
-var reserved = map[string]bool{"embed": true, "v1": true, "api": true, "www": true, "js": true, "css": true, "static": true}
+var reserved = map[string]bool{"embed": true, "v1": true, "api": true, "www": true, "js": true, "css": true, "static": true, "wday": true}
 
 var detectors = []struct {
 	board string
 	re    *regexp.Regexp
+	token func(m []string) string // builds the token when it is not simply the first group
 }{
-	{model.BoardGreenhouse, regexp.MustCompile(`(?i)(?:boards|job-boards)(?:\.eu)?\.greenhouse\.io/embed/job_board(?:/js)?\?(?:[^"'\s]*&)?for=([\w-]+)`)},
-	{model.BoardGreenhouse, regexp.MustCompile(`(?i)boards-api\.greenhouse\.io/v1/boards/([\w-]+)`)},
-	{model.BoardGreenhouse, regexp.MustCompile(`(?i)(?:boards|job-boards)(?:\.eu)?\.greenhouse\.io/([\w-]+)`)},
-	{model.BoardLever, regexp.MustCompile(`(?i)(?:jobs|api)(?:\.eu)?\.lever\.co/(?:v0/postings/)?([\w.-]+)`)},
-	{model.BoardAshby, regexp.MustCompile(`(?i)jobs\.ashbyhq\.com/([\w.%-]+)`)},
-	{model.BoardAshby, regexp.MustCompile(`(?i)api\.ashbyhq\.com/posting-api/job-board/([\w.%-]+)`)},
+	{board: model.BoardWorkday, re: workdayRe, token: workdayToken},
+	{board: model.BoardGreenhouse, re: regexp.MustCompile(`(?i)(?:boards|job-boards)(?:\.eu)?\.greenhouse\.io/embed/job_board(?:/js)?\?(?:[^"'\s]*&)?for=([\w-]+)`)},
+	{board: model.BoardGreenhouse, re: regexp.MustCompile(`(?i)boards-api\.greenhouse\.io/v1/boards/([\w-]+)`)},
+	{board: model.BoardGreenhouse, re: regexp.MustCompile(`(?i)(?:boards|job-boards)(?:\.eu)?\.greenhouse\.io/([\w-]+)`)},
+	{board: model.BoardLever, re: regexp.MustCompile(`(?i)(?:jobs|api)(?:\.eu)?\.lever\.co/(?:v0/postings/)?([\w.-]+)`)},
+	{board: model.BoardAshby, re: regexp.MustCompile(`(?i)jobs\.ashbyhq\.com/([\w.%-]+)`)},
+	{board: model.BoardAshby, re: regexp.MustCompile(`(?i)api\.ashbyhq\.com/posting-api/job-board/([\w.%-]+)`)},
 }
 
 var (

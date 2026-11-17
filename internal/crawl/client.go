@@ -3,6 +3,7 @@
 package crawl
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -111,7 +112,27 @@ func (c *Client) Fetch(ctx context.Context, rawURL string) (*Result, error) {
 	if !allowed {
 		return nil, ErrRobots
 	}
-	return c.get(ctx, u)
+	return c.do(ctx, http.MethodGet, u, nil)
+}
+
+// PostJSON sends one JSON POST under the same rules as Fetch. Some job boards
+// (Workday) serve their public listing only this way.
+func (c *Client) PostJSON(ctx context.Context, rawURL string, body []byte) (*Result, error) {
+	u, err := url.Parse(rawURL)
+	if err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Hostname() == "" {
+		return nil, fmt.Errorf("bad url %q", rawURL)
+	}
+	if Banned(u.Hostname()) {
+		return nil, ErrBanned
+	}
+	allowed, err := c.robots.Allowed(ctx, u)
+	if err != nil {
+		return nil, err
+	}
+	if !allowed {
+		return nil, ErrRobots
+	}
+	return c.do(ctx, http.MethodPost, u, body)
 }
 
 // Allow runs every politeness check for a URL without downloading it: the
@@ -137,13 +158,25 @@ func (c *Client) Allow(ctx context.Context, rawURL string) error {
 
 // get is one rate-limited GET with no robots check (used for robots.txt itself).
 func (c *Client) get(ctx context.Context, u *url.URL) (*Result, error) {
+	return c.do(ctx, http.MethodGet, u, nil)
+}
+
+// do is one rate-limited request with no robots check.
+func (c *Client) do(ctx context.Context, method string, u *url.URL, payload []byte) (*Result, error) {
 	domain := strings.ToLower(u.Hostname())
 	if err := c.Limiter.Wait(ctx, domain); err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
+	var reqBody io.Reader
+	if payload != nil {
+		reqBody = bytes.NewReader(payload)
+	}
+	req, err := http.NewRequestWithContext(ctx, method, u.String(), reqBody)
 	if err != nil {
 		return nil, err
+	}
+	if payload != nil {
+		req.Header.Set("Content-Type", "application/json")
 	}
 	req.Header.Set("User-Agent", c.UserAgent)
 	req.Header.Set("Accept", "application/json, text/html;q=0.9, */*;q=0.5")

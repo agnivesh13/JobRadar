@@ -11,6 +11,7 @@ One file per build phase. Each one records what was built, why it was built that
 | 4. Live view | [phase-4-live-view.md](phase-4-live-view.md) | Done |
 | 5. Whole-site crawling | [phase-5-whole-site-crawling.md](phase-5-whole-site-crawling.md) | Done, with known gaps listed in the file |
 | 6. Discovery and scoring | [phase-6-discovery-and-scoring.md](phase-6-discovery-and-scoring.md) | Done; LLM and Telegram untested (no keys) |
+| 7. Workday career sites (added after the plan) | [phase-7-workday.md](phase-7-workday.md) | Done; verified on two live sites |
 
 ## How the phases were split
 

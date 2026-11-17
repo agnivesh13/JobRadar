@@ -77,7 +77,7 @@ Whole-site crawls started by discovery in the same session: Vahan 33 jobs, GroMo
 
 ## Known gaps (honest list)
 
-1. **Hiring products without a parser.** Keka, Darwinbox, Workday, Kula, Zoho Recruit and similar. The plan's answer is the right one: add a parser per product as it shows up. Keka is first in line (two of the first twenty custom companies).
+1. **Hiring products without a parser.** Keka, Darwinbox, Workday, Kula, Zoho Recruit and similar. The plan's answer is the right one: add a parser per product as it shows up. Keka is first in line (two of the first twenty custom companies). Workday was added later: see [phase-7-workday.md](phase-7-workday.md).
 2. **Name -> domain without a search engine is guesswork.** It tries `name.com/.in/.io/.ai/.co`, which found `postman.ai` instead of `postman.com`. Typing the domain works, and so does configuring SearXNG (`SEARXNG_URL`), which the resolver already uses when present.
 3. **Aggregator sites look like companies.** One discovered "company" was a job marketplace whose 500 crawled pages were listings of other firms' jobs. I removed it by hand from the Companies screen. A rule for this is not built.
 4. **The heuristic posting detector is unproven at scale.** It has unit tests and worked on the sites above, but "log misses and add patterns weekly" from the plan's risk table is still the process.

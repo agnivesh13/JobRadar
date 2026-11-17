@@ -1,0 +1,139 @@
+{
+ "total": 2000,
+ "jobPostings": [
+  {
+   "title": "Principal Software Engineer - Employee Productivity",
+   "externalPath": "/job/US-CA-Santa-Clara/Principal-Software-Engineer---Employee-Productivity_JR2021643-1",
+   "locationsText": "US, CA, Santa Clara",
+   "postedOn": "Posted Today",
+   "bulletFields": [
+    "JR2021643"
+   ]
+  },
+  {
+   "title": "Senior Full Stack Software Engineer, Marketing Platforms",
+   "externalPath": "/job/US-CA-Santa-Clara/Senior-Full-Stack-Software-Engineer--Marketing-Platforms_JR2028332",
+   "locationsText": "US, CA, Santa Clara",
+   "postedOn": "Posted Today",
+   "bulletFields": [
+    "JR2028332"
+   ]
+  },
+  {
+   "title": "Senior Memory System Architect",
+   "externalPath": "/job/US-CA-Santa-Clara/Senior-Memory-System-Architect_JR2022582",
+   "locationsText": "3 Locations",
+   "postedOn": "Posted Today",
+   "bulletFields": [
+    "JR2022582"
+   ]
+  }
+ ],
+ "facets": [
+  {
+   "facetParameter": "timeType",
+   "descriptor": "Time Type",
+   "values": [
+    {
+     "descriptor": "Full time",
+     "id": "5509c0b5959810ac0029943377d47364",
+     "count": 2711
+    },
+    {
+     "descriptor": "Part time",
+     "id": "5509c0b5959810ac00299430e7947363",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "facetParameter": "locationMainGroup",
+   "values": [
+    {
+     "facetParameter": "locationHierarchy2",
+     "descriptor": "Location Type",
+     "values": [
+      {
+       "descriptor": "Office",
+       "id": "0c3f5f117e9a0101f6422f0fe79d0000",
+       "count": 2557
+      },
+      {
+       "descriptor": "Remote",
+       "id": "0c3f5f117e9a0101f63dc469c3010000",
+       "count": 577
+      }
+     ]
+    },
+    {
+     "facetParameter": "locationHierarchy1",
+     "descriptor": "Locations",
+     "values": [
+      {
+       "descriptor": "Armenia",
+       "id": "d21cf68980ad0128000fd2c6b107c000",
+       "count": 4
+      },
+      {
+       "descriptor": "Australia",
+       "id": "2fcb99c455831013ea528dce556b3224",
+       "count": 15
+      },
+      {
+       "descriptor": "India",
+       "id": "2fcb99c455831013ea52b82135ba3266",
+       "count": 240
+      }
+     ]
+    },
+    {
+     "facetParameter": "locations",
+     "descriptor": "Sites",
+     "values": [
+      {
+       "descriptor": "Armenia, Remote",
+       "id": "d21cf68980ad01f2f9f0b1bdb5075e07",
+       "count": 2
+      },
+      {
+       "descriptor": "Armenia, Yerevan",
+       "id": "c0ed409f79231000eaff724467330000",
+       "count": 4
+      },
+      {
+       "descriptor": "India, Bengaluru",
+       "id": "91336993fab910af6d6fb9748af4c1df",
+       "count": 192
+      },
+      {
+       "descriptor": "India, Gurugram",
+       "id": "f28ae3c49d2601aff203e114d301695f",
+       "count": 11
+      },
+      {
+       "descriptor": "India, Hyderabad",
+       "id": "91336993fab910af6d6fb2be0974c1d0",
+       "count": 40
+      },
+      {
+       "descriptor": "India, Mumbai",
+       "id": "91336993fab910af6d6fabbb968cc1c1",
+       "count": 8
+      },
+      {
+       "descriptor": "India, Pune",
+       "id": "91336993fab910af6d6fb0782884c1cb",
+       "count": 70
+      },
+      {
+       "descriptor": "India, Remote",
+       "id": "91336993fab910af6d6fb4ee7634c1d5",
+       "count": 14
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "userAuthenticated": false
+}
