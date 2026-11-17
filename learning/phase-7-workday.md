@@ -81,7 +81,11 @@ Same rule as the other boards: live responses first, trimmed copies in `internal
 | BrowserStack, scheduled repeat | 2 requests, "16 jobs", nothing closed |
 | NVIDIA, first crawl | 253 requests (13 list pages, 240 postings), about 4.5 minutes at one request per second; 202 jobs after merging duplicates, 22 matching the profile |
 
+| Bare hosts `cisco.wd5`, `lseg.wd5`, `nasdaq.wd5` | All resolved through robots.txt (LSEG found on wd3, Nasdaq on wd1). India postings listed: Cisco 316, LSEG 210 plus 28 on its graduate site, Nasdaq 36. Matching the profile: Cisco 27, LSEG 6, Nasdaq 0 |
+
 BrowserStack was one of the companies that returned 0 jobs in Phase 5.
+
+Cisco also holds about 500 non-India postings from the first, unfiltered attempt (problem 7). They are no longer listed by the filtered crawl, so they close by themselves after two crawls.
 
 ## Known gaps
 
