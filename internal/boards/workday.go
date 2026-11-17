@@ -23,7 +23,8 @@ import (
 //
 // Notes from the live check:
 //   - "limit" above 20 is answered with HTTP 400.
-//   - "total" is only filled in on the first page (offset 0); later pages say 0.
+//   - "total" is only filled in on the first page (offset 0); later pages say 0,
+//     so the total travels in the page URL ("n").
 //   - "total" is capped at 2000, and an offset past the end wraps around to
 //     the first page, so paging must stop at the total, not at an empty page.
 //   - The list carries no description, so each posting costs one more request.
@@ -91,8 +92,11 @@ func IsWorkdayList(taskURL string) bool {
 // workdayListURL names one list page. The offset and the facet filter live in
 // the query string so every page is a distinct URL in the crawl frontier; the
 // fetcher turns them into the POST body (see WorkdayRequest).
-func workdayListURL(base string, offset int, facet string) string {
+func workdayListURL(base string, offset, total int, facet string) string {
 	q := "?offset=" + strconv.Itoa(offset)
+	if offset > 0 {
+		q += "&n=" + strconv.Itoa(total) // only the first page reports the total, so later pages carry it
+	}
 	if facet != "" {
 		q += "&f=" + url.QueryEscape(facet)
 	}
@@ -132,7 +136,7 @@ type WorkdayPosting struct {
 // WorkdayList is what one list page yields.
 type WorkdayList struct {
 	Postings []WorkdayPosting
-	Next     []string // the other list pages (only set on the first page)
+	Next     string // the list page after this one ("" on the last)
 	// Refine is set instead of everything else when the unfiltered first page
 	// offers a location filter for the wanted country: crawl that list instead.
 	Refine string
@@ -161,7 +165,7 @@ func ParseWorkdayList(body []byte, taskURL, country string) (WorkdayList, error)
 	facet := u.Query().Get("f")
 	if offset == 0 && facet == "" && country != "" {
 		if f := workdayCountryFacet(doc.Facets, country); f != "" {
-			out.Refine = workdayListURL(base, 0, f)
+			out.Refine = workdayListURL(base, 0, 0, f)
 			return out, nil
 		}
 	}
@@ -172,10 +176,15 @@ func ParseWorkdayList(body []byte, taskURL, country string) (WorkdayList, error)
 		}
 		out.Postings = append(out.Postings, WorkdayPosting{Title: strings.TrimSpace(p.Title), URL: public + p.ExternalPath, DetailURL: base + p.ExternalPath})
 	}
-	if offset == 0 {
-		for next := workdayPageSize; next < min(doc.Total, workdayMaxTotal); next += workdayPageSize {
-			out.Next = append(out.Next, workdayListURL(base, next, facet))
-		}
+	// Pages are chained (each names only the one after it) rather than all
+	// claimed at once: a 2000-posting site then never has more than one page
+	// of work in the queue, and other companies are fetched in between.
+	total := doc.Total
+	if offset > 0 {
+		total, _ = strconv.Atoi(u.Query().Get("n"))
+	}
+	if next := offset + workdayPageSize; next < min(total, workdayMaxTotal) {
+		out.Next = workdayListURL(base, next, total, facet)
 	}
 	return out, nil
 }
@@ -189,7 +198,8 @@ func workdayPublicBase(base string) string {
 // workdayCountryFacet finds the location filter for a country and returns it
 // as "parameter:id[,id...]". Sites name their location filters differently:
 // some have a country level ("India"), others only list sites ("India,
-// Bengaluru", "India Remote"), in which case every site of the country is selected.
+// Bengaluru", "India Remote", "Bangalore, India"), in which case every site
+// that names the country is selected.
 func workdayCountryFacet(facets []workdayFacet, country string) string {
 	want := strings.ToLower(strings.TrimSpace(country))
 	var exact, prefix string
@@ -210,7 +220,7 @@ func workdayCountryFacet(facets []workdayFacet, country string) string {
 					if exact == "" {
 						exact = f.FacetParameter + ":" + v.ID
 					}
-				case strings.HasPrefix(d, want) && !isLetter(d[len(want)]):
+				case hasWord(d, want):
 					ids = append(ids, v.ID)
 				}
 			}
@@ -228,6 +238,22 @@ func workdayCountryFacet(facets []workdayFacet, country string) string {
 }
 
 func isLetter(b byte) bool { return b >= 'a' && b <= 'z' }
+
+// hasWord reports whether s contains word as a whole word: "bangalore, india"
+// and "india remote" name India; "indianapolis, indiana, us" does not.
+func hasWord(s, word string) bool {
+	for from := 0; ; {
+		i := strings.Index(s[from:], word)
+		if i < 0 {
+			return false
+		}
+		start, end := from+i, from+i+len(word)
+		if (start == 0 || !isLetter(s[start-1])) && (end == len(s) || !isLetter(s[end])) {
+			return true
+		}
+		from = end
+	}
+}
 
 // ParseWorkdayJob reads one posting's detail document.
 func ParseWorkdayJob(body []byte, taskURL string) (model.RawJob, error) {
@@ -272,4 +298,62 @@ func ParseWorkdayJob(body []byte, taskURL string) (model.RawJob, error) {
 		job.PostedAt = &t
 	}
 	return job, nil
+}
+
+// ---- finding the career sites of a tenant ---------------------------------
+//
+// A bare host such as https://cisco.wd5.myworkdayjobs.com/ answers 406: the
+// site name is required. Checked live on 17 Nov 2026: the host's robots.txt
+// names every public career site in its "Sitemap:" and "Allow:" lines, e.g.
+//
+//	Sitemap: https://lseg.wd3.myworkdayjobs.com/Careers/siteMap.xml
+//	Sitemap: https://lseg.wd3.myworkdayjobs.com/Graduate_Careers/siteMap.xml
+//
+// A tenant lives on one data centre ("wd3"); the same robots.txt on any other
+// number answers 422. People often quote the wrong number, so the others are tried.
+
+var (
+	workdayHostRe     = regexp.MustCompile(`(?i)^(?:https?://)?([a-z0-9-]+)\.wd(\d+)\.myworkdayjobs\.com/?$`)
+	workdaySiteLineRe = regexp.MustCompile(`(?im)^[ \t]*(?:Sitemap:[ \t]*https?://[^/\s]+|Allow:[ \t]*)/([\w-]+)/(?:siteMap\.xml)?[ \t]*\r?$`)
+)
+
+// WorkdayHosts recognises a Workday host given without a site name and
+// returns the hosts to ask for robots.txt: the one given first, then the
+// tenant on the other common data centres.
+func WorkdayHosts(input string) (tenant string, hosts []string, ok bool) {
+	m := workdayHostRe.FindStringSubmatch(strings.TrimSpace(input))
+	if m == nil {
+		return "", nil, false
+	}
+	tenant = strings.ToLower(m[1])
+	for _, n := range []string{m[2], "1", "3", "5", "12", "10", "103"} {
+		h := tenant + ".wd" + n + ".myworkdayjobs.com"
+		if len(hosts) == 0 || !containsString(hosts, h) {
+			hosts = append(hosts, h)
+		}
+	}
+	return tenant, hosts, true
+}
+
+// WorkdaySites lists the career sites named in a Workday host's robots.txt.
+func WorkdaySites(robots []byte) []string {
+	var sites []string
+	for _, m := range workdaySiteLineRe.FindAllStringSubmatch(string(robots), -1) {
+		if !containsString(sites, m[1]) && !reserved[strings.ToLower(m[1])] {
+			sites = append(sites, m[1])
+		}
+	}
+	return sites
+}
+
+// WorkdayToken builds the company token for one site of a tenant.
+func WorkdayToken(host, tenant, site string) string { return host + "/" + tenant + "/" + site }
+
+func containsString(list []string, s string) bool {
+	for _, v := range list {
+		if v == s {
+			return true
+		}
+	}
+	return false
 }

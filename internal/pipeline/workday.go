@@ -3,6 +3,7 @@ package pipeline
 import (
 	"context"
 	"fmt"
+	"sort"
 
 	"jobradar/internal/boards"
 	"jobradar/internal/model"
@@ -13,7 +14,7 @@ import (
 // feed: list pages (20 postings each) name the postings, and each posting's
 // description is a separate request. The crawl uses the site-crawl frontier:
 //
-//   - the first list page claims every other list page
+//   - each list page claims the list page after it
 //   - each list page claims the postings it has not stored yet; postings
 //     already stored are only marked as seen, so a repeat crawl of an
 //     unchanged site costs the list pages and nothing else
@@ -80,8 +81,8 @@ func (e *Extractor) workdayPage(ctx context.Context, f model.Fetched) (Extracted
 			}
 			links = append(links, store.SiteLink{URL: p.DetailURL, Depth: 2})
 		}
-		for _, u := range list.Next {
-			links = append(links, store.SiteLink{URL: u, Depth: 1})
+		if list.Next != "" {
+			links = append(links, store.SiteLink{URL: list.Next, Depth: 1})
 		}
 	}
 
@@ -89,6 +90,11 @@ func (e *Extractor) workdayPage(ctx context.Context, f model.Fetched) (Extracted
 	if err != nil {
 		return out, err
 	}
+	// Postings first, the next list page last: the queue is first in, first
+	// out, so the next page (and the work it brings) waits behind this page's.
+	sort.SliceStable(res.Follow, func(i, j int) bool {
+		return !boards.IsWorkdayList(res.Follow[i].URL) && boards.IsWorkdayList(res.Follow[j].URL)
+	})
 	for _, l := range res.Follow {
 		next := t
 		next.URL, next.Depth, next.Render = l.URL, l.Depth, false

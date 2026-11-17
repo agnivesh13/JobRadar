@@ -277,5 +277,11 @@ func (s *Server) runSearch(id, name, pick string) {
 	}
 	s.Deps.Store.MarkScheduled(ctx, company.ID)
 	step("ok", "crawl queued at high priority", task.URL)
+	for _, more := range res.More {
+		// Further career sites of the same company: saved, and crawled by the scheduler.
+		if c, err := resolve.Save(ctx, s.Deps.Store, more, resolve.Meta{Source: "deep_search"}); err == nil {
+			step("ok", "also added "+c.Name+" (crawled in the background)", "")
+		}
+	}
 	s.searches.update(id, func(d *deepSearch) { d.State, d.CompanyID, d.Company = "crawling", company.ID, company.Name })
 }

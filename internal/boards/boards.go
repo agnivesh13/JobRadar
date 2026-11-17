@@ -31,7 +31,7 @@ func FeedURL(boardType, token string) (string, error) {
 		if err != nil {
 			return "", err
 		}
-		return workdayListURL(base, 0, ""), nil
+		return workdayListURL(base, 0, 0, ""), nil
 	}
 	return "", fmt.Errorf("no feed for board type %q", boardType)
 }

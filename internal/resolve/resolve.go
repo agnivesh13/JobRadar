@@ -50,6 +50,9 @@ type Result struct {
 	BoardToken string
 	Candidates []Candidate
 	Ambiguous  bool
+	// More holds further boards of the same company (a Workday tenant can
+	// run several career sites); each is saved as its own company.
+	More []Result
 }
 
 func (r *Resolver) step(outcome, detail, u string) {
@@ -103,6 +106,9 @@ func (r *Resolver) Resolve(ctx context.Context, input, pick string) (Result, err
 		res.Board, res.BoardToken, res.Name = b, tok, boards.DisplayName(b, tok)
 		r.step("ok", "that is a "+b+" board link", input)
 		return res, nil
+	}
+	if tenant, hosts, ok := boards.WorkdayHosts(input); ok {
+		return r.workdayTenant(ctx, tenant, hosts)
 	}
 	switch {
 	case pick != "":
@@ -340,4 +346,31 @@ func Search(ctx context.Context, base, query string) []string {
 		urls = append(urls, x.URL)
 	}
 	return urls
+}
+
+// workdayTenant finds the career sites of a Workday host given without a site
+// name, by reading the host's robots.txt (see boards.WorkdaySites).
+func (r *Resolver) workdayTenant(ctx context.Context, tenant string, hosts []string) (Result, error) {
+	res := Result{Name: tenant}
+	for _, host := range hosts {
+		robots := "https://" + host + "/robots.txt"
+		page, err := r.Fetch.Fetch(ctx, robots)
+		if err != nil || page.Status != 200 {
+			continue
+		}
+		sites := boards.WorkdaySites(page.Body)
+		if len(sites) == 0 {
+			continue
+		}
+		r.step("ok", fmt.Sprintf("workday career sites of %s: %s", tenant, strings.Join(sites, ", ")), robots)
+		res.Board, res.BoardToken = model.BoardWorkday, boards.WorkdayToken(host, tenant, sites[0])
+		for _, site := range sites[1:] {
+			res.More = append(res.More, Result{
+				Name:  tenant + " (" + strings.ReplaceAll(site, "_", " ") + ")",
+				Board: model.BoardWorkday, BoardToken: boards.WorkdayToken(host, tenant, site),
+			})
+		}
+		return res, nil
+	}
+	return res, fmt.Errorf("no public Workday career site found for %q; paste the full link including the site name", tenant)
 }

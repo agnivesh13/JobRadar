@@ -21,7 +21,7 @@ Same rule as the other boards: live responses first, trimmed copies in `internal
 1. **`internal/boards/workday.go`**: `Detect` recognises a Workday link in any form (site URL, with a locale prefix, a posting URL, the API URL). The company token is `host/tenant/site`. `ParseWorkdayList` and `ParseWorkdayJob` read the two response shapes.
 2. **POST support in the fetch client** (`crawl.Client.PostJSON`). It goes through exactly the same checks as a GET: never-crawl list, robots.txt, the per-domain rate limit, the honest User-Agent, back-off on 429 and 5xx.
 3. **`internal/pipeline/workday.go`**: the crawl itself, on top of the Phase 5 frontier (`crawl_pages`):
-   - the first list page claims every other list page
+   - each list page claims the list page after it
    - each list page claims the postings it does not have yet
    - each posting page yields one job
    - the crawl is done when no claimed page is unprocessed
@@ -56,6 +56,23 @@ Same rule as the other boards: live responses first, trimmed copies in `internal
 ### 5. "Crawl now" downloaded everything again
 - **Expected once I looked:** "Crawl now" sets the force flag, and force means "do not trust what is stored". The skip was verified with a scheduled crawl instead.
 
+### 6. A bare host is not a career site
+- **Asked for next:** links such as `http://cisco.wd5.myworkdayjobs.com/`, with no site name.
+- **Live check:** the bare host answers 406. But the host's `robots.txt` names every public career site in its `Sitemap:` lines. Two of the three hosts I was given answered 422 even for robots.txt, because the tenant lives on a different server number (`lseg` on wd3 and `nasdaq` on wd1, not wd5).
+- **Fix:** given a bare Workday host, the resolver reads robots.txt on that host and then on the other common server numbers, and takes the site names from it. A tenant with several sites (LSEG has `Careers`, `Graduate_Careers`, `Microsoft_Partnership`) becomes one company per site; the first is crawled at once, the rest by the scheduler.
+
+### 7. "Bangalore, India" did not count as India
+- **Symptom:** Cisco's crawl claimed 1,547 pages instead of a few hundred.
+- **Cause:** I matched location names that *start* with the country ("India, Bengaluru"). Cisco writes the city first.
+- **Fix:** match the country as a whole word anywhere in the name. The test holds Cisco's own traps: "Indianapolis, Indiana, US" and "Remote - Indiana, USA" must not match.
+- **Lesson:** two sites were not enough to learn the naming habits; the third broke the rule. The fallback (crawl everything) kept the result correct, only expensive.
+
+### 8. One big site starved every other company
+- **Symptom:** while Cisco's 1,500 pages were queued, LSEG's graduate site and Nasdaq sat untouched for ten minutes.
+- **Cause:** the first list page claimed all list pages at once, they released all postings within a minute, and the fetch queue is first in, first out. Everything published later waited behind 1,500 tasks that drain at one per second.
+- **Fix:** list pages are chained. Each page publishes its postings first and the next list page last, so a Workday site never has more than about 21 tasks in the queue and other companies are fetched in between. The total (known only from the first page) travels in the page URL.
+- **Lesson:** a per-domain rate limit protects the site being crawled; it does not protect the crawler's other work. Queue depth per company needs its own bound.
+
 ## Result (17 Nov 2026)
 
 | Check | Outcome |
@@ -70,8 +87,8 @@ BrowserStack was one of the companies that returned 0 jobs in Phase 5.
 
 1. **The older address form `wd1.myworkdaysite.com/recruiting/{tenant}/{site}` is not recognised.** I did not check it against a live response, so I did not write it.
 2. **More than 2000 postings after filtering cannot be read**; Workday itself stops there.
-3. **One large first crawl occupies the fetchers.** They all wait on the same domain's one-per-second slot. Other companies are delayed for those minutes, not skipped.
-4. **Workday companies cannot be found by name.** The site name (`NVIDIAExternalCareerSite`, `External`) cannot be guessed, so a company is picked up when its careers page links to Workday, or when you paste the Workday link into deep search.
+3. **A large first crawl is slow**: one request per second, so 2000 postings take over half an hour. It no longer delays other companies (problem 8).
+4. **Workday companies cannot be found by name alone.** A company is picked up when its careers page links to Workday, or when you paste its Workday link (with or without the site name) into deep search. Typing just "Cisco" does not try Workday.
 5. **No test covers `workdayPage` or `TouchJobs`** (they need a database); they were verified by the live runs above.
 
 ## How to verify

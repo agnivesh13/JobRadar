@@ -85,3 +85,18 @@ func TestCustomSiteAndAmbiguity(t *testing.T) {
 		t.Error("an unknown company should be an error with advice")
 	}
 }
+
+func TestBareWorkdayHost(t *testing.T) {
+	// The tenant is on wd3, not on the wd5 that was typed.
+	web := fakeWeb{"https://lseg.wd3.myworkdayjobs.com/robots.txt": "Sitemap: https://lseg.wd3.myworkdayjobs.com/Careers/siteMap.xml\nSitemap: https://lseg.wd3.myworkdayjobs.com/Graduate_Careers/siteMap.xml\n\nUser-agent: *\nAllow: /Careers/\n"}
+	res, err := (&Resolver{Fetch: web}).Resolve(context.Background(), "http://lseg.wd5.myworkdayjobs.com/", "")
+	if err != nil || res.Board != "workday" || res.BoardToken != "lseg.wd3.myworkdayjobs.com/lseg/Careers" {
+		t.Fatalf("got %+v, %v", res, err)
+	}
+	if len(res.More) != 1 || res.More[0].BoardToken != "lseg.wd3.myworkdayjobs.com/lseg/Graduate_Careers" || res.More[0].Name != "lseg (Graduate Careers)" {
+		t.Errorf("more = %+v", res.More)
+	}
+	if _, err := (&Resolver{Fetch: fakeWeb{}}).Resolve(context.Background(), "nobody.wd1.myworkdayjobs.com", ""); err == nil {
+		t.Error("a tenant with no public site must fail")
+	}
+}
