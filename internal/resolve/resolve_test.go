@@ -86,6 +86,19 @@ func TestCustomSiteAndAmbiguity(t *testing.T) {
 	}
 }
 
+func TestHostedBoardsByName(t *testing.T) {
+	keka := fakeWeb{"https://acme.keka.com/careers/api/jobs/default/active": `[{"id":7,"title":"Backend Engineer","description":"<p>Go</p>","jobLocations":[{"city":"Pune","countryName":"India"}]}]`}
+	res, err := (&Resolver{Fetch: keka}).Resolve(context.Background(), "Acme", "")
+	if err != nil || res.Board != "keka" || res.BoardToken != "acme" {
+		t.Fatalf("keka: %+v, %v", res, err)
+	}
+	sr := fakeWeb{"https://careers.smartrecruiters.com/acme/api/more?page=0": `<li class="opening-job"><a href="https://jobs.smartrecruiters.com/Acme/74400-backend-engineer" class="js-job-ad-link"><h4 class="job-title">Backend Engineer</h4></a></li>`}
+	res, err = (&Resolver{Fetch: sr}).Resolve(context.Background(), "Acme", "")
+	if err != nil || res.Board != "smartrecruiters" || res.BoardToken != "acme" {
+		t.Fatalf("smartrecruiters: %+v, %v", res, err)
+	}
+}
+
 func TestWorkdayByName(t *testing.T) {
 	// robots.txt as served by redhat.wd5.myworkdayjobs.com on 17 Nov 2026.
 	web := fakeWeb{"https://redhat.wd5.myworkdayjobs.com/robots.txt": "Sitemap: https://redhat.wd5.myworkdayjobs.com/Jobs/siteMap.xml\n\nUser-agent: *\nAllow: /Jobs/\nDisallow: /refreshFacet/\n"}

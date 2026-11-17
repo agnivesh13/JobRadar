@@ -66,8 +66,8 @@ func (e *Extractor) sitePage(ctx context.Context, f model.Fetched) (Extracted, e
 					// Another company already owns this board: carry on as a plain site crawl.
 					e.Log.Info("board already belongs to another company", "board", page.Board, "token", page.BoardTok)
 				} else {
-					if page.Board == model.BoardWorkday {
-						// Workday is crawled page by page through this same frontier;
+					if boards.Paged(page.Board) {
+						// A paged board is crawled page by page through this same frontier;
 						// its first page must be claimed before this one is finished.
 						if err := e.Store.SeedCrawlPage(ctx, t.CrawlID, feed); err != nil {
 							return out, err
@@ -78,7 +78,7 @@ func (e *Extractor) sitePage(ctx context.Context, f model.Fetched) (Extracted, e
 					}
 					next := t
 					next.URL, next.Kind, next.BoardType, next.Depth, next.Render, next.Force = feed, model.KindBoardFeed, page.Board, 0, false, true
-					if page.Board == model.BoardWorkday {
+					if boards.Paged(page.Board) {
 						next.Kind, next.Force = model.KindWorkday, t.Force
 					}
 					out.Tasks = []model.FetchTask{next}

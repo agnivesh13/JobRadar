@@ -80,7 +80,7 @@ type Extractor struct {
 	CanRender func() bool
 	// LLM is the last-resort extractor for pages nothing else understood (optional).
 	LLM func(ctx context.Context, p extract.Page, pageURL string) (model.RawJob, bool)
-	// WorkdayCountry narrows Workday crawls to one country ("" = everything).
+	// WorkdayCountry narrows Workday and SmartRecruiters crawls to one country ("" = everything).
 	WorkdayCountry string
 }
 
@@ -127,7 +127,7 @@ func (e *Extractor) Handle(ctx context.Context, f model.Fetched) (Extracted, err
 	}
 	switch t.Kind {
 	case model.KindBoardFeed:
-		jobs, err := boards.Parse(t.BoardType, body)
+		jobs, err := boards.ParseFeed(t.BoardType, t.URL, body)
 		if err != nil {
 			done.Failed = "feed did not parse: " + err.Error()
 			return Extracted{Done: done}, nil
@@ -239,14 +239,14 @@ func NewCrawlID(companyID int64) string {
 func TaskFor(c model.Company, crawlID, priority, searchID string) (model.FetchTask, error) {
 	t := model.FetchTask{CrawlID: crawlID, CompanyID: c.ID, Company: c.Name, BoardType: c.BoardType, Priority: priority, SearchID: searchID}
 	switch c.BoardType {
-	case model.BoardGreenhouse, model.BoardLever, model.BoardAshby:
+	case model.BoardGreenhouse, model.BoardLever, model.BoardAshby, model.BoardKeka:
 		u, err := boards.FeedURL(c.BoardType, c.BoardToken)
 		if err != nil {
 			return t, err
 		}
 		t.URL, t.Kind = u, model.KindBoardFeed
 		return t, nil
-	case model.BoardWorkday:
+	case model.BoardWorkday, model.BoardDarwinbox, model.BoardSmartRecruiters:
 		u, err := boards.FeedURL(c.BoardType, c.BoardToken)
 		if err != nil {
 			return t, err

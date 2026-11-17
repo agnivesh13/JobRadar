@@ -1,0 +1,73 @@
+{
+ "status": "success",
+ "message": {
+  "job": [
+   {
+    "id": "a6ad6faa9243f8",
+    "designation": "a6a3bb361aa894040128523",
+    "designation_display_name": "",
+    "employee_sub_type": "",
+    "experience": "0 - 6 Years",
+    "experience_from_num": 0,
+    "experience_to_num": 72,
+    "salary_currency": "",
+    "salary_min": "",
+    "salary_max": "",
+    "salary_range": "",
+    "salary_timeframe": "Annual",
+    "jd": "&lt;div&gt;&lt;b&gt;Role Overview&lt;br /&gt;&lt;br /&gt;&lt;/b&gt;&lt;/div&gt;&lt;div&gt;As a Builder Procurement , you will help assess cars being procured under GS by reviewing vehicle inspection reports, photos and videos, along with available service history records. You will check whether the vehicle’s condition and maintenance history have been accurately documented, identify possible risks or mismatches, and support informed procurement decisions by following defined SOPs and quality guidelines.&lt;/div&gt;&lt;div&gt;&lt;br /&gt;&lt;/div&gt;&lt;div&gt;&lt;b&gt;Key Responsibilities&lt;/b&gt;&lt;/div&gt;&lt;div&gt;&lt;br /&gt;&lt;/div&gt;&lt;ul&gt;&lt;li&gt;Review vehicle inspection reports, photos and videos to assess the condition of key components, including the engine, transmission, suspension, brakes, steering, electrical systems and AC.&lt;br /&gt;&lt;/li&gt;&lt;li&gt;Identify signs of accident repairs, panel replacements, repainting, structural or flood damage, rust and other concerns from inspection media.&lt;/li&gt;&lt;li&gt;Review service records from authorised (OEM) and multi-brand workshops, including job cards, invoices and part details.&lt;/li&gt;&lt;li&gt;Check odometer readings across service visits for inconsistencies that may indicate tampering or rollback.&lt;/li&gt;&lt;li&gt;Assess whether periodic maintenance was completed as per the OEM schedule, and identify missed services, major repairs, part replacements or recurring complaints.&lt;/li&gt;&lt;li&gt;Spot incomplete, inconsistent or potentially altered inspection or service records.&lt;/li&gt;&lt;li&gt;Cross-check inspection findings against service history and flag gaps or mismatches.&lt;/li&gt;&lt;li&gt;Unflag, approve, reject or escalate cases in line with defined SOPs and quality guidelines.&lt;/li&gt;&lt;li&gt;Coordinate with inspection engineers, procurement and pricing teams to clarify or re-check doubtful cases.&lt;/li&gt;&lt;li&gt;Record decisions and the reasons for them accurately in the internal system.&lt;/li&gt;&lt;li&gt;Meet targets for turnaround time (TAT), case volume and decision accuracy.&lt;/li&gt;&lt;li&gt;Highlight recurring inspection or documentation errors to the team lead.&lt;/li&gt;&lt;/ul&gt;&lt;div&gt;&lt;b&gt;Requirements&lt;br /&gt;&lt;br /&gt;&lt;/b&gt;&lt;/div&gt;&lt;ul&gt;&lt;li&gt;Education: ITI in Motor Mechanic or Mechanic Diesel, a Diploma in Mechanical or Automobile Engineering, or graduation with relevant experience.&lt;/li&gt;&lt;li&gt;0–3 years of experience in vehicle inspection, a dealership or workshop service centre, vehicle evaluation, or a related automobile role. Freshers with strong technical knowledge may also apply.&lt;/li&gt;&lt;li&gt;Good understanding of vehicle mechanics, including engines, gearboxes, suspension, brakes and electrical systems.&lt;/li&gt;&lt;li&gt;Familiarity with car parts, OEM service schedules, job cards and repair invoices.&lt;/li&gt;&lt;li&gt;Awareness of service practices across major car brands such as Maruti, Hyundai, Honda, Tata, Mahindra and Toyota.&lt;/li&gt;&lt;li&gt;Ability to assess vehicle condition and identify inconsistencies from inspection reports, photos, videos and service records.&lt;/li&gt;&lt;/ul&gt;",
+    "officelocations_area": [
+     "Gurgaon, Haryana\r, India"
+    ],
+    "officelocations_without_area": [
+     "Gurgaon, Haryana\r, India"
+    ],
+    "designation_title": "",
+    "created_on": "2026-10-20T05:22:49.000Z",
+    "is_remote": 0,
+    "designation_name": "Builder - Procurement",
+    "emp_sub_type_name": "",
+    "job_tags": [],
+    "legal_entity_ids": [],
+    "internal_job_code": "JOB401",
+    "job_posting": {
+     "careers": {
+      "from": 1792434600
+     }
+    },
+    "officelocation_arr": [
+     "a61a0e30dd1382"
+    ],
+    "officelocation_show_arr": "Gurgaon, Haryana, India",
+    "job_posting_on": 1792434600,
+    "department_id": "a685af49fd167b",
+    "parent_department_list": [
+     {
+      "level": "l1",
+      "code": "CSPL_Retail-Core_Business",
+      "name": "Business",
+      "id": "a685af49fd167b"
+     }
+    ],
+    "capability": [],
+    "tool_tip_locations": [
+     "Gurgaon, Haryana, India"
+    ],
+    "designation_name_id": "a6a3b69eb840f6370631100",
+    "posted_on": 1792434600,
+    "designation_title_name": "",
+    "timezone": "Asia/Kolkata",
+    "officelocation_show_arr_list": [
+     "Gurgaon, Haryana, India"
+    ],
+    "locations": "Gurgaon, Haryana\r, India",
+    "department": "Business",
+    "emp_type": "Permanent",
+    "emp_type_id": "a61263ed1bc74e",
+    "functional_area_id": "",
+    "title": "Builder - Procurement"
+   }
+  ],
+  "isSaved": false
+ }
+}

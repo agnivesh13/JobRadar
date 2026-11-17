@@ -61,10 +61,13 @@ func workdayBase(token string) (string, error) {
 
 // DisplayName is a readable company name for a board token.
 func DisplayName(boardType, token string) string {
-	if boardType == model.BoardWorkday {
+	switch boardType {
+	case model.BoardWorkday:
 		if p := strings.Split(token, "/"); len(p) == 3 {
 			return p[1]
 		}
+	case model.BoardDarwinbox:
+		return strings.SplitN(token, ".", 2)[0]
 	}
 	return token
 }
@@ -140,6 +143,8 @@ type WorkdayList struct {
 	// Refine is set instead of everything else when the unfiltered first page
 	// offers a location filter for the wanted country: crawl that list instead.
 	Refine string
+	// Note says why Refine was chosen, for the live view.
+	Note string
 }
 
 // ParseWorkdayList reads one list page. country ("" = no filter) narrows the

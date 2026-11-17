@@ -5,19 +5,22 @@ import "time"
 
 // Board types.
 const (
-	BoardGreenhouse = "greenhouse"
-	BoardLever      = "lever"
-	BoardAshby      = "ashby"
-	BoardWorkday    = "workday"
-	BoardCustom     = "custom"
-	BoardUnknown    = "unknown"
+	BoardGreenhouse      = "greenhouse"
+	BoardLever           = "lever"
+	BoardAshby           = "ashby"
+	BoardWorkday         = "workday"
+	BoardKeka            = "keka"
+	BoardDarwinbox       = "darwinbox"
+	BoardSmartRecruiters = "smartrecruiters"
+	BoardCustom          = "custom"
+	BoardUnknown         = "unknown"
 )
 
 // Page kinds.
 const (
 	KindBoardFeed = "board_feed" // one JSON document with every job of a company
 	KindSitePage  = "site_page"  // an HTML page on a company's own site
-	KindWorkday   = "workday"    // a Workday list page or posting (JSON), crawled through the site frontier
+	KindWorkday   = "workday"    // a list page or posting of a paged board (Workday, Darwinbox, SmartRecruiters), crawled through the site frontier
 )
 
 type Company struct {

@@ -1,0 +1,73 @@
+{
+ "status": "success",
+ "message": {
+  "jobscount": 7,
+  "jobs": [
+   {
+    "id": "a67dd32d8adae1",
+    "designation_display_name": "",
+    "experience_from_num": "",
+    "experience_to_num": "",
+    "created_on": "2025-03-21T09:35:20.000Z",
+    "officelocation_show_arr": "Multiple locations",
+    "officelocation_arr": "",
+    "job_posting_on": 1767810600,
+    "department": "Trucking",
+    "department_id": "a672e0f7a65b9f",
+    "emp_type": "Permanent",
+    "emp_type_id": "57598c8f1601e",
+    "functional_area": "",
+    "functional_area_id": "",
+    "title": "Associate",
+    "tool_tip_locations": [
+     "Goa_HQ2_Office , Goa, Goa, India ",
+     "Goa_HQ_Office , Panjim, Goa, India ",
+     "ORION_Goa , Goa, Goa, India "
+    ],
+    "timezone": "Asia/Kolkata"
+   },
+   {
+    "id": "a688309ba17a28",
+    "designation_display_name": "",
+    "experience_from_num": "",
+    "experience_to_num": "",
+    "created_on": "2025-07-25T04:36:10.000Z",
+    "officelocation_show_arr": "Goa_HQ_Office (Goa), Panjim, Goa, India",
+    "officelocation_arr": "",
+    "job_posting_on": 1753381800,
+    "department": "Management Training",
+    "department_id": "a6725d91b662d8",
+    "emp_type": "Permanent",
+    "emp_type_id": "57598c8f1601e",
+    "functional_area": "",
+    "functional_area_id": "",
+    "title": "Manager",
+    "tool_tip_locations": [
+     "Goa_HQ_Office (Goa), Panjim, Goa, India"
+    ],
+    "timezone": "Asia/Kolkata"
+   },
+   {
+    "id": "a6779263d2a4eb",
+    "designation_display_name": "",
+    "experience_from_num": "",
+    "experience_to_num": "",
+    "created_on": "2025-01-04T12:14:53.000Z",
+    "officelocation_show_arr": "GGN_HQ05 # (Haryana), Gurgaon, Haryana, India",
+    "officelocation_arr": "",
+    "job_posting_on": 1735929000,
+    "department": "Trucking",
+    "department_id": "a672df6b1651aa",
+    "emp_type": "Permanent",
+    "emp_type_id": "57598c8f1601e",
+    "functional_area": "",
+    "functional_area_id": "",
+    "title": "Senior Manager",
+    "tool_tip_locations": [
+     "GGN_HQ05 # (Haryana), Gurgaon, Haryana, India"
+    ],
+    "timezone": "Asia/Kolkata"
+   }
+  ]
+ }
+}

@@ -105,7 +105,7 @@ func runVerify(ctx context.Context, cfg config.Config, _ []string) error {
 			fail("%s: crawl completed but no stored feed", c.Name)
 			continue
 		}
-		jobs, err := boards.Parse(c.BoardType, body)
+		jobs, err := boards.ParseFeed(c.BoardType, feedURL, body)
 		if err != nil {
 			fail("%s: stored feed does not parse: %v", c.Name, err)
 			continue

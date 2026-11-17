@@ -32,6 +32,13 @@ func FeedURL(boardType, token string) (string, error) {
 			return "", err
 		}
 		return workdayListURL(base, 0, 0, ""), nil
+	case model.BoardKeka:
+		return "https://" + t + ".keka.com/careers/api/jobs/default/active", nil
+	case model.BoardDarwinbox:
+		// The first list page; see paged.go for how the rest is reached.
+		return darwinboxListURL(token, 1), nil
+	case model.BoardSmartRecruiters:
+		return smartRecruitersListURL(token, 0, ""), nil
 	}
 	return "", fmt.Errorf("no feed for board type %q", boardType)
 }
@@ -47,6 +54,15 @@ func Parse(boardType string, body []byte) ([]model.RawJob, error) {
 		return parseAshby(body)
 	}
 	return nil, fmt.Errorf("no parser for board type %q", boardType)
+}
+
+// ParseFeed is Parse for boards whose job links are built from the feed's
+// own address.
+func ParseFeed(boardType, feedURL string, body []byte) ([]model.RawJob, error) {
+	if boardType == model.BoardKeka {
+		return parseKeka(body, feedURL)
+	}
+	return Parse(boardType, body)
 }
 
 // Detect recognises a board from any URL that points at it (a careers page
@@ -67,7 +83,7 @@ func Detect(rawURL string) (boardType, token string, ok bool) {
 	return "", "", false
 }
 
-var reserved = map[string]bool{"embed": true, "v1": true, "api": true, "www": true, "js": true, "css": true, "static": true, "wday": true}
+var reserved = map[string]bool{"embed": true, "v1": true, "api": true, "www": true, "js": true, "css": true, "static": true, "wday": true, "cdn": true, "app": true, "oneclick-ui": true}
 
 var detectors = []struct {
 	board string
@@ -81,7 +97,12 @@ var detectors = []struct {
 	{board: model.BoardLever, re: regexp.MustCompile(`(?i)(?:jobs|api)(?:\.eu)?\.lever\.co/(?:v0/postings/)?([\w.-]+)`)},
 	{board: model.BoardAshby, re: regexp.MustCompile(`(?i)jobs\.ashbyhq\.com/([\w.%-]+)`)},
 	{board: model.BoardAshby, re: regexp.MustCompile(`(?i)api\.ashbyhq\.com/posting-api/job-board/([\w.%-]+)`)},
+	{board: model.BoardKeka, re: kekaRe, token: lowerToken},
+	{board: model.BoardDarwinbox, re: darwinboxRe, token: lowerToken},
+	{board: model.BoardSmartRecruiters, re: smartRecruitersRe},
 }
+
+func lowerToken(m []string) string { return strings.ToLower(m[1]) }
 
 var (
 	tagBreakRe = regexp.MustCompile(`(?i)<\s*(?:br|/p|/div|/li|/h[1-6]|/tr)\s*/?>`)

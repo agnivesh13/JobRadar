@@ -131,13 +131,13 @@ func (r *Resolver) Resolve(ctx context.Context, input, pick string) (Result, err
 	if res.Domain == "" {
 		if b, tok, n := r.boardBySlug(ctx, res.Name); b != "" {
 			res.Board, res.BoardToken = b, tok
-			r.step("ok", fmt.Sprintf("found on %s as %q with %d jobs", b, tok, n), "")
+			r.step("ok", fmt.Sprintf("found on %s as %q (%d jobs listed)", b, tok, n), "")
 			return res, nil
 		}
 		if wd, ok := r.workdayByName(ctx, res.Name); ok {
 			return wd, nil
 		}
-		r.step("info", "not on Greenhouse, Lever, Ashby or Workday under its own name; looking for its website", "")
+		r.step("info", "not on a known job board under its own name; looking for its website", "")
 	}
 
 	// 2. Name -> domain.
@@ -190,14 +190,22 @@ func (r *Resolver) workdayByName(ctx context.Context, name string) (Result, bool
 // boardBySlug asks each board whether it hosts the company under a slug of its name.
 func (r *Resolver) boardBySlug(ctx context.Context, name string) (board, token string, jobs int) {
 	for _, slug := range Slugs(name) {
-		for _, b := range []string{model.BoardGreenhouse, model.BoardLever, model.BoardAshby} {
-			feed, _ := boards.FeedURL(b, slug)
+		for _, b := range []string{model.BoardGreenhouse, model.BoardLever, model.BoardAshby, model.BoardKeka, model.BoardSmartRecruiters} {
+			token := slug
+			feed, _ := boards.FeedURL(b, token)
 			res, err := r.Fetch.Fetch(ctx, feed)
 			if err != nil || res.Status != 200 {
 				continue
 			}
-			if list, err := boards.Parse(b, res.Body); err == nil && len(list) > 0 {
-				return b, slug, len(list)
+			if boards.Paged(b) {
+				// The first list page: country "" so that it lists postings.
+				if list, err := boards.ParseListPage(b, res.Body, feed, ""); err == nil && len(list.Postings) > 0 {
+					return b, token, len(list.Postings)
+				}
+				continue
+			}
+			if list, err := boards.ParseFeed(b, feed, res.Body); err == nil && len(list) > 0 {
+				return b, token, len(list)
 			}
 		}
 	}

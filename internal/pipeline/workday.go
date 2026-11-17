@@ -10,8 +10,8 @@ import (
 	"jobradar/internal/store"
 )
 
-// workdayPage handles one page of a Workday crawl. Workday has no single
-// feed: list pages (20 postings each) name the postings, and each posting's
+// workdayPage handles one page of a paged board (Workday, Darwinbox,
+// SmartRecruiters; see boards.Paged). These have no single feed: list pages (20 postings each) name the postings, and each posting's
 // description is a separate request. The crawl uses the site-crawl frontier:
 //
 //   - each list page claims the list page after it
@@ -25,7 +25,7 @@ func (e *Extractor) workdayPage(ctx context.Context, f model.Fetched) (Extracted
 	t := f.Task
 	var out Extracted
 	var links []store.SiteLink
-	isList := boards.IsWorkdayList(t.URL)
+	isList := boards.IsListPage(t.BoardType, t.URL)
 	jobs, failure := 0, ""
 
 	switch {
@@ -46,7 +46,7 @@ func (e *Extractor) workdayPage(ctx context.Context, f model.Fetched) (Extracted
 			return out, err
 		}
 		if !isList {
-			job, err := boards.ParseWorkdayJob(body, t.URL)
+			job, err := boards.ParseJobPage(t.BoardType, body, t.URL)
 			if err != nil {
 				failure = "posting did not parse: " + err.Error()
 				break
@@ -54,14 +54,16 @@ func (e *Extractor) workdayPage(ctx context.Context, f model.Fetched) (Extracted
 			out.Jobs, jobs = []model.RawJob{job}, 1
 			break
 		}
-		list, err := boards.ParseWorkdayList(body, t.URL, e.WorkdayCountry)
+		list, err := boards.ParseListPage(t.BoardType, body, t.URL, e.WorkdayCountry)
 		if err != nil {
 			failure = "list did not parse: " + err.Error()
 			break
 		}
 		if list.Refine != "" {
 			links = []store.SiteLink{{URL: list.Refine, Depth: 0}}
-			out.Note = "listing narrowed to " + e.WorkdayCountry
+			if out.Note = list.Note; out.Note == "" {
+				out.Note = "listing narrowed to " + e.WorkdayCountry
+			}
 			break
 		}
 		known := map[string]bool{}
@@ -86,14 +88,14 @@ func (e *Extractor) workdayPage(ctx context.Context, f model.Fetched) (Extracted
 		}
 	}
 
-	res, err := e.Store.FinishSitePage(ctx, t.CrawlID, t.URL, jobs, links, boards.WorkdayMaxPages)
+	res, err := e.Store.FinishSitePage(ctx, t.CrawlID, t.URL, jobs, links, boards.MaxPagedPages)
 	if err != nil {
 		return out, err
 	}
 	// Postings first, the next list page last: the queue is first in, first
 	// out, so the next page (and the work it brings) waits behind this page's.
 	sort.SliceStable(res.Follow, func(i, j int) bool {
-		return !boards.IsWorkdayList(res.Follow[i].URL) && boards.IsWorkdayList(res.Follow[j].URL)
+		return !boards.IsListPage(t.BoardType, res.Follow[i].URL) && boards.IsListPage(t.BoardType, res.Follow[j].URL)
 	})
 	for _, l := range res.Follow {
 		next := t
@@ -106,7 +108,7 @@ func (e *Extractor) workdayPage(ctx context.Context, f model.Fetched) (Extracted
 	if res.Remaining == 0 {
 		done := &model.CrawlDone{CrawlID: t.CrawlID, CompanyID: t.CompanyID, Company: t.Company, SearchID: t.SearchID, JobCount: res.TotalJobs}
 		if failure != "" && res.TotalJobs == 0 {
-			done.Failed = "workday: " + failure // nothing was read: close nothing
+			done.Failed = t.BoardType + ": " + failure // nothing was read: close nothing
 		}
 		out.Done = done
 	}
