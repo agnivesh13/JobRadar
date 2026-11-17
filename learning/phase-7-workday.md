@@ -73,6 +73,13 @@ Same rule as the other boards: live responses first, trimmed copies in `internal
 - **Fix:** list pages are chained. Each page publishes its postings first and the next list page last, so a Workday site never has more than about 21 tasks in the queue and other companies are fetched in between. The total (known only from the first page) travels in the page URL.
 - **Lesson:** a per-domain rate limit protects the site being crawled; it does not protect the crawler's other work. Queue depth per company needs its own bound.
 
+### 9. Workday has no "find a company by name"
+- **Asked for next:** typing "Cisco" should find its Workday site, without pasting a link.
+- **Live check:** there is no directory or search. But the host is `{tenant}.wdN.myworkdayjobs.com`, the tenant is usually the company name as one word, and an unknown tenant answers 422 exactly like a wrong server number. `cisco`, `adobe`, `redhat`, `salesforce`, `mastercard` all answered with their sites; `dell.wd1` did not.
+- **Fix:** `Resolver.workdayByName` runs after the Greenhouse/Lever/Ashby check: each slug of the name is tried as a tenant on the six common server numbers, reusing the robots.txt reader from problem 6. A typed domain (`redhat.com`) falls back to the same check only if no careers page is found on the site.
+- **Cost:** up to 18 extra requests (three slugs, six hosts) for a name that is not on Workday, each to a different host, so about ten seconds.
+- **Verified:** deep search for "Red Hat" resolved to `redhat.wd5.myworkdayjobs.com/redhat/Jobs` and crawled its 8 India postings in 29 s.
+
 ## Result (17 Nov 2026)
 
 | Check | Outcome |
@@ -92,7 +99,7 @@ Cisco also holds about 500 non-India postings from the first, unfiltered attempt
 1. **The older address form `wd1.myworkdaysite.com/recruiting/{tenant}/{site}` is not recognised.** I did not check it against a live response, so I did not write it.
 2. **More than 2000 postings after filtering cannot be read**; Workday itself stops there.
 3. **A large first crawl is slow**: one request per second, so 2000 postings take over half an hour. It no longer delays other companies (problem 8).
-4. **Workday companies cannot be found by name alone.** A company is picked up when its careers page links to Workday, or when you paste its Workday link (with or without the site name) into deep search. Typing just "Cisco" does not try Workday.
+4. **Finding by name is a guess at the tenant** (problem 9). It misses companies whose tenant is not their name (an abbreviation, a parent company), tenants on a data centre outside the six tried, and it could pick up a different company that happens to own that tenant name. Pasting the link always works.
 5. **No test covers `workdayPage` or `TouchJobs`** (they need a database); they were verified by the live runs above.
 
 ## How to verify

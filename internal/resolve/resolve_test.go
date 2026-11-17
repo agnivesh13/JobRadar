@@ -86,6 +86,20 @@ func TestCustomSiteAndAmbiguity(t *testing.T) {
 	}
 }
 
+func TestWorkdayByName(t *testing.T) {
+	// robots.txt as served by redhat.wd5.myworkdayjobs.com on 17 Nov 2026.
+	web := fakeWeb{"https://redhat.wd5.myworkdayjobs.com/robots.txt": "Sitemap: https://redhat.wd5.myworkdayjobs.com/Jobs/siteMap.xml\n\nUser-agent: *\nAllow: /Jobs/\nDisallow: /refreshFacet/\n"}
+	res, err := (&Resolver{Fetch: web}).Resolve(context.Background(), "Red Hat", "")
+	if err != nil || res.Board != "workday" || res.BoardToken != "redhat.wd5.myworkdayjobs.com/redhat/Jobs" || res.Name != "Red Hat" {
+		t.Fatalf("got %+v, %v", res, err)
+	}
+	// A typed domain with no careers page falls back to the tenant of the same name.
+	res, err = (&Resolver{Fetch: web}).Resolve(context.Background(), "redhat.com", "")
+	if err != nil || res.Board != "workday" || res.Domain != "redhat.com" {
+		t.Fatalf("domain input: %+v, %v", res, err)
+	}
+}
+
 func TestBareWorkdayHost(t *testing.T) {
 	// The tenant is on wd3, not on the wd5 that was typed.
 	web := fakeWeb{"https://lseg.wd3.myworkdayjobs.com/robots.txt": "Sitemap: https://lseg.wd3.myworkdayjobs.com/Careers/siteMap.xml\nSitemap: https://lseg.wd3.myworkdayjobs.com/Graduate_Careers/siteMap.xml\n\nUser-agent: *\nAllow: /Careers/\n"}

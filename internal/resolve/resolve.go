@@ -108,8 +108,9 @@ func (r *Resolver) Resolve(ctx context.Context, input, pick string) (Result, err
 		return res, nil
 	}
 	if tenant, hosts, ok := boards.WorkdayHosts(input); ok {
-		return r.workdayTenant(ctx, tenant, hosts)
+		return r.workdayTenant(ctx, tenant, tenant, hosts)
 	}
+	typedDomain := false
 	switch {
 	case pick != "":
 		res.Domain = pick
@@ -123,6 +124,7 @@ func (r *Resolver) Resolve(ctx context.Context, input, pick string) (Result, err
 		}
 		res.Domain = strings.TrimPrefix(strings.ToLower(u.Hostname()), "www.")
 		res.Name = strings.SplitN(res.Domain, ".", 2)[0]
+		typedDomain = true
 	}
 
 	// 1. A board under the company's own name finishes the job in one request.
@@ -132,7 +134,10 @@ func (r *Resolver) Resolve(ctx context.Context, input, pick string) (Result, err
 			r.step("ok", fmt.Sprintf("found on %s as %q with %d jobs", b, tok, n), "")
 			return res, nil
 		}
-		r.step("info", "not on Greenhouse, Lever or Ashby under its own name; looking for its website", "")
+		if wd, ok := r.workdayByName(ctx, res.Name); ok {
+			return wd, nil
+		}
+		r.step("info", "not on Greenhouse, Lever, Ashby or Workday under its own name; looking for its website", "")
 	}
 
 	// 2. Name -> domain.
@@ -152,9 +157,34 @@ func (r *Resolver) Resolve(ctx context.Context, input, pick string) (Result, err
 
 	// 3. Domain -> careers page (and maybe a board).
 	if err := r.careers(ctx, &res); err != nil {
+		// A typed domain skipped step 1; its name may still be a Workday tenant.
+		if typedDomain {
+			if wd, ok := r.workdayByName(ctx, res.Name); ok {
+				wd.Domain = res.Domain
+				return wd, nil
+			}
+		}
 		return res, err
 	}
 	return res, nil
+}
+
+// workdayByName looks for a Workday tenant named like the company. Workday
+// has no search by name, but a tenant's host is "{tenant}.wdN.myworkdayjobs.com"
+// and the tenant is usually the company's name in one word, so each slug is
+// tried on the common data centres (an unknown tenant answers 422, like a
+// wrong data centre; checked live on 17 Nov 2026).
+func (r *Resolver) workdayByName(ctx context.Context, name string) (Result, bool) {
+	for _, slug := range Slugs(name) {
+		_, hosts, ok := boards.WorkdayHosts(slug + ".wd1.myworkdayjobs.com")
+		if !ok {
+			continue
+		}
+		if res, err := r.workdayTenant(ctx, name, slug, hosts); err == nil {
+			return res, true
+		}
+	}
+	return Result{}, false
 }
 
 // boardBySlug asks each board whether it hosts the company under a slug of its name.
@@ -349,9 +379,10 @@ func Search(ctx context.Context, base, query string) []string {
 }
 
 // workdayTenant finds the career sites of a Workday host given without a site
-// name, by reading the host's robots.txt (see boards.WorkdaySites).
-func (r *Resolver) workdayTenant(ctx context.Context, tenant string, hosts []string) (Result, error) {
-	res := Result{Name: tenant}
+// name, by reading the host's robots.txt (see boards.WorkdaySites). name is
+// what the company is called in the list.
+func (r *Resolver) workdayTenant(ctx context.Context, name, tenant string, hosts []string) (Result, error) {
+	res := Result{Name: name}
 	for _, host := range hosts {
 		robots := "https://" + host + "/robots.txt"
 		page, err := r.Fetch.Fetch(ctx, robots)
@@ -366,7 +397,7 @@ func (r *Resolver) workdayTenant(ctx context.Context, tenant string, hosts []str
 		res.Board, res.BoardToken = model.BoardWorkday, boards.WorkdayToken(host, tenant, sites[0])
 		for _, site := range sites[1:] {
 			res.More = append(res.More, Result{
-				Name:  tenant + " (" + strings.ReplaceAll(site, "_", " ") + ")",
+				Name:  name + " (" + strings.ReplaceAll(site, "_", " ") + ")",
 				Board: model.BoardWorkday, BoardToken: boards.WorkdayToken(host, tenant, site),
 			})
 		}
