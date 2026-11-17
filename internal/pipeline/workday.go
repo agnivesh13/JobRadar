@@ -66,6 +66,7 @@ func (e *Extractor) workdayPage(ctx context.Context, f model.Fetched) (Extracted
 			}
 			break
 		}
+		out.Jobs, jobs = list.Jobs, len(list.Jobs) // boards whose list carries whole postings
 		known := map[string]bool{}
 		if !t.Force {
 			urls := make([]string, len(list.Postings))

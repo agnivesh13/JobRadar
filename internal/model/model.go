@@ -12,6 +12,9 @@ const (
 	BoardKeka            = "keka"
 	BoardDarwinbox       = "darwinbox"
 	BoardSmartRecruiters = "smartrecruiters"
+	BoardAmazon          = "amazon"
+	BoardEightfold       = "eightfold"
+	BoardApple           = "apple"
 	BoardCustom          = "custom"
 	BoardUnknown         = "unknown"
 )

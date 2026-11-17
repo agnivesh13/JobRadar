@@ -68,6 +68,16 @@ func DisplayName(boardType, token string) string {
 		}
 	case model.BoardDarwinbox:
 		return strings.SplitN(token, ".", 2)[0]
+	case model.BoardAmazon:
+		return "Amazon"
+	case model.BoardApple:
+		return "Apple"
+	case model.BoardEightfold:
+		if strings.HasSuffix(token, "/microsoft.com") {
+			return "Microsoft"
+		}
+		_, domain, _ := strings.Cut(token, "/")
+		return strings.SplitN(domain, ".", 2)[0]
 	}
 	return token
 }
@@ -145,6 +155,9 @@ type WorkdayList struct {
 	Refine string
 	// Note says why Refine was chosen, for the live view.
 	Note string
+	// Jobs are complete postings read from the list itself, on boards whose
+	// list carries the description (Amazon); they need no posting page.
+	Jobs []model.RawJob
 }
 
 // ParseWorkdayList reads one list page. country ("" = no filter) narrows the

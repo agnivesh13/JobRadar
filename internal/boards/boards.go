@@ -39,6 +39,16 @@ func FeedURL(boardType, token string) (string, error) {
 		return darwinboxListURL(token, 1), nil
 	case model.BoardSmartRecruiters:
 		return smartRecruitersListURL(token, 0, ""), nil
+	case model.BoardAmazon:
+		return amazonListURL(0, ""), nil
+	case model.BoardEightfold:
+		host, domain, err := eightfoldParts(token)
+		if err != nil {
+			return "", err
+		}
+		return eightfoldListURL(host, domain, 0, ""), nil
+	case model.BoardApple:
+		return appleListURL(1, ""), nil
 	}
 	return "", fmt.Errorf("no feed for board type %q", boardType)
 }
@@ -100,6 +110,9 @@ var detectors = []struct {
 	{board: model.BoardKeka, re: kekaRe, token: lowerToken},
 	{board: model.BoardDarwinbox, re: darwinboxRe, token: lowerToken},
 	{board: model.BoardSmartRecruiters, re: smartRecruitersRe},
+	{board: model.BoardAmazon, re: amazonRe, token: func([]string) string { return "amazon" }},
+	{board: model.BoardEightfold, re: eightfoldRe, token: eightfoldToken},
+	{board: model.BoardApple, re: appleRe, token: func([]string) string { return "apple" }},
 }
 
 func lowerToken(m []string) string { return strings.ToLower(m[1]) }

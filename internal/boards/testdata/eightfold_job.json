@@ -1,0 +1,56 @@
+{
+ "status": 200,
+ "error": {
+  "message": "",
+  "body": ""
+ },
+ "data": {
+  "id": 1970393557070761,
+  "displayJobId": "200066836",
+  "name": "Platform Engineer",
+  "locations": [
+   "India, Multiple Locations, Multiple Locations"
+  ],
+  "standardizedLocations": [
+   "IN"
+  ],
+  "postedTs": 1794827018,
+  "stars": 0,
+  "department": "Service Engineering",
+  "creationTs": 1794357089,
+  "jobDescription": "<b>Overview</b><br><p>In alignment with our Microsoft values, we are committed to cultivating an inclusive work environment for all employees to positively impact our culture every day and we need you as a Critical Environment Platform Engineer. </p><p>Microsoft’s Cloud Operations &amp; Innovation (CO+I) is the engine that powers our cloud services. As a (CIPS) Platform Engineer you will perform a key role in delivering the core infrastructure and foundational technologies for Microsoft's online services including Bing, Office 365, Xbox, OneDrive, and the Microsoft Azure platform. You will be part of a team that is responsible for operating the Critical Infrastructure Platform across our unified global datacenters; managing the demand planning and capacity utilization; and responsible for running the physical infrastructure (including supply chain, hardware, power, security, and workflow teams). We emphasize automation, data driven engineering, cost-effectiveness, and environmental sustainability. You will join a team of Platform Engineers who are passionate about designing, building, and operating the world's most advanced cloud infrastructures. You will work on cutting-edge technologies and projects that enable Microsoft to deliver innovative solutions and services to our customers while collaborating with other teams across the company and learning from the best in the industry. If you are looking for a challenging and rewarding career, this is the role for you. This is a flexible work opportunity role offering the option for partial remote work from home. </p><p>As a group, CO+I is focused on the personal and professional development for all employees and offers trainings and growth opportunities including Career Rotation Programs, Diversity &amp; Inclusion trainings and events, and professional certifications.    </p><p>Our infrastructure is comprised of a large global portfolio of more than 150 datacenters and 1 million servers. Our foundation is built upon and managed by a team of subject matter experts working to support services for more than 1 billion customers and 20 million businesses in over 90 countries worldwide.    </p><p>With environmental sustainability and optimization at the forefront of our datacenter design and operations, we continue to grow and evolve as we meet the ever-changing business demands that hold Microsoft as a world-class cloud provider.    </p><p>Do you want to empower billions across the world? Come and join us in CO+I and be at the forefront of the action!   </p><br><br><b>Responsibilities</b><br><p><strong>Responsibilities:  </strong></p><p><strong>Technical Knowledge and Expertise   </strong></p><ul><li><p>Support a hybrid Continuous Integration (CI)/Continuous Delivery/Deployment (CD) DevOps virtualized infrastructure consisting of Windows &amp; Linux Server Operating System, Hyper-V, Active Directory, Domain Name System, PowerShell scripting, with a focus on data protection technologies, service metrics and Key Performance Indicator (KPI) reporting, documentation skills, along with interpersonal awareness, proactivity, and a proven ability to manage and drive delivery of multiple simultaneous cross-group dependent server and service-based projects at scale. </p></li></ul><ul><li><p>Perform, maintain, and continuously improve automated operating system installation and configuration.   </p></li></ul><ul><li><p>Configure and maintain hands-on bare metal enterprise-class server systems, including automated periodic firmware and driver updates at scale, Redundant Array of Independent Disks (RAID) and Intelligent Platform Management Interface (IPMI) configurations and hardware troubleshooting.   </p></li></ul><p><strong>Operational Excellence  </strong></p><ul><li><p>Monitor servers, ensure service levels and KPIs are met and maintained, provide security conscience outcomes maintaining compliance alignment, and ensure 24/7/365 service and infrastructure operations support with continuous optimizations.  </p></li></ul><ul><li><p>Transition manual operational processes to automation while leveraging CI/CD DevOps principles.  </p></li></ul><p><strong>Collaboration and Knowledge Sharing  </strong></p><ul><li><p>Partner with a global team while helping bring projects to successful outcomes and delivering rigorous documentation artifacts.  </p></li></ul><ul><li><p>Share responsibility for automating, securing, configuring, and delivering support of the Critical Environments infrastructure &amp; related programs and projects in existing and future datacenters.   </p></li></ul><p><strong>Other  </strong></p><ul><li><p>Embody our <a target=\"_blank\" href=\"https://nam06.safelinks.protection.outlook.com/?url=https%3A%2F%2Fcareers.microsoft.com%2Fus%2Fen%2Fculture&amp;data=05%7C02%7Cjrobertson%40microsoft.com%7Ceb83471279b549cf3c4e08dc87488e87%7C72f988bf86f141af91ab2d7cd011db47%7C1%7C0%7C638533992903438582%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C0%7C%7C%7C&amp;sdata=gXAOEI5iPlmbgcj396fzLCfti78rc403fDns%2BO6wlKE%3D&amp;reserved=0\">culture</a> and <a target=\"_blank\" href=\"https://nam06.safelinks.protection.outlook.com/?url=https%3A%2F%2Fwww.microsoft.com%2Fen-us%2Fabout%2Fcorporate-values&amp;data=05%7C02%7Cjrobertson%40microsoft.com%7Ceb83471279b549cf3c4e08dc87488e87%7C72f988bf86f141af91ab2d7cd011db47%7C1%7C0%7C638533992903451106%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C0%7C%7C%7C&amp;sdata=sR0vsfNl87hNi0S2eAaYR6kbK41z5DWy71zfjpTfTPQ%3D&amp;reserved=0\">values</a>.  </p></li></ul><br><br><b>Qualifications</b><br><p><strong>Required Qualifications:     </strong></p><ul><li><p>Bachelor's Degree or Trade Certification in Computer Science, Information Technology, Mechanical Engineering, Electrical Engineering, Aerospace Engineering, Data Science, Cybersecurity, or related field OR equivalent experience. </p></li></ul><ul><li><p>OR equivalent experience </p></li></ul>  <p><strong>Background Check Requirements: </strong></p><p>Ability to meet Microsoft, customer and/or government security screening requirements are required for this role. These requirements include, but are not limited to the following specialized security screenings: </p><ul><li>Microsoft Cloud Background Check: This position will be required to pass the Microsoft Cloud background check upon hire/transfer and every two years thereafter.</li></ul> <p> </p><p><strong>Preferred Qualifications: </strong> </p><ul><li>Bachelor's Degree in Computer Science, Information Technology, or related field AND an internship in software engineering, network engineering, service engineering, or systems engineering OR equivalent experience. </li><li>Familiarity with enterprise large-scale cloud or distributed systems. </li><li>Basic understanding of Windows Server OS and UNIX-based operating systems including enterprise-level Linux distributions performing automated system installation and configuration, file system concepts, resource monitoring, user administration, package management, and process control &amp; management. </li><li>Demonstrate basic understanding of Configuration management with PowerShell DSC, Puppet, Chef or similar. </li><li>Project or lab work with server &amp; tooling platforms for multiple infrastructure services such as Windows Server 2022/2019, Linux Server distributions, Hyper-V, Azure Arc, MIT Kerberos, Active Directory, DNS, PowerShell/Python infrastructure-as-code scripting, data protection technologies, service monitoring, incident alarming, compliance, and other services to aid in fulfilling operational monitoring, audit logging of events, compliance requirements, outages, or security-related issues. </li></ul> <br><p>This position will be open for a minimum of 5 days, with applications accepted on an ongoing basis until the position is filled.</p><br><hr><br><p>Microsoft is an equal opportunity employer. All qualified applicants will receive consideration for employment without regard to age, ancestry, citizenship, color, family or medical care leave, gender identity or expression, genetic information, immigration status, marital status, medical condition, national origin, physical or mental disability, political affiliation, protected veteran or military status, race, ethnicity, religion, sex (including pregnancy), sexual orientation, or any other characteristic protected by applicable local laws, regulations and ordinances. If you need assistance with religious accommodations and/or a reasonable accommodation due to a disability during the application process, read more about <a href=\"https://careers.microsoft.com/v2/global/en/accessibility.html\"><b><u>requesting accommodations.</u></b></a></p> ",
+  "location": "India, Multiple Locations, Multiple Locations",
+  "isHot": 0,
+  "workLocationOption": "onsite",
+  "locationFlexibility": null,
+  "atsJobId": "200066836",
+  "positionUrl": "/careers/job/1970393557070761",
+  "publicUrl": "https://apply.careers.microsoft.com/careers/job/1970393557070761",
+  "efcustomTextWorkSite": [
+   "3 days / week in-office"
+  ],
+  "efcustomTextRequiredTravel": [
+   "Less than 25%"
+  ],
+  "efcustomTextCurrentProfession": [
+   "Software Engineering"
+  ],
+  "efcustomTextTaDisciplineName": [
+   "Service Engineering"
+  ],
+  "efcustomTextRoletype": [
+   "Individual Contributor"
+  ],
+  "efcustomTextEmploymentType": [
+   "Full-Time"
+  ],
+  "jdHighlight": [],
+  "positionUserActions": {
+   "isSaved": false,
+   "applyAction": {
+    "status": "log_in"
+   }
+  }
+ },
+ "metadata": null
+}

@@ -1,0 +1,93 @@
+{
+ "status": 200,
+ "error": {
+  "message": "",
+  "body": ""
+ },
+ "data": {
+  "positions": [
+   {
+    "id": 1970393557070761,
+    "displayJobId": "200066836",
+    "name": "Platform Engineer",
+    "locations": [
+     "India, Multiple Locations, Multiple Locations"
+    ],
+    "standardizedLocations": [
+     "IN"
+    ],
+    "postedTs": 1794827018,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Service Engineering",
+    "creationTs": 1794357089,
+    "isHot": 0,
+    "workLocationOption": "onsite",
+    "locationFlexibility": null,
+    "atsJobId": "200066836",
+    "positionUrl": "/careers/job/1970393557070761"
+   },
+   {
+    "id": 1970393557047550,
+    "displayJobId": "200063973",
+    "name": "Technical Support Engineering Perf",
+    "locations": [
+     "India, Multiple Locations, Multiple Locations"
+    ],
+    "standardizedLocations": [
+     "IN"
+    ],
+    "postedTs": 1794827694,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Technical Support Engineering",
+    "creationTs": 1793064077,
+    "isHot": 0,
+    "workLocationOption": "onsite",
+    "locationFlexibility": null,
+    "atsJobId": "200063973",
+    "positionUrl": "/careers/job/1970393557047550"
+   },
+   {
+    "id": 1970393557027218,
+    "displayJobId": "200060873",
+    "name": "Technical Support Engineer - UEX",
+    "locations": [
+     "India, Multiple Locations, Multiple Locations"
+    ],
+    "standardizedLocations": [
+     "IN"
+    ],
+    "postedTs": 1794828138,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Technical Support Engineering",
+    "creationTs": 1791469699,
+    "isHot": 0,
+    "workLocationOption": "onsite",
+    "locationFlexibility": null,
+    "atsJobId": "200060873",
+    "positionUrl": "/careers/job/1970393557027218"
+   }
+  ],
+  "count": 219,
+  "sortBy": "distance",
+  "appliedFilters": {
+   "includeRemote": [
+    "1"
+   ],
+   "includeRelocation": [
+    "0"
+   ]
+  },
+  "debug": {},
+  "savedSearchMetadata": {
+   "savedSearchParamsHash": null,
+   "isSavedSearchActive": false
+  },
+  "resultsMetaData": {
+   "usedFuzzSearch": false
+  }
+ },
+ "metadata": null
+}

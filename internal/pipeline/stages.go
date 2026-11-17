@@ -246,7 +246,7 @@ func TaskFor(c model.Company, crawlID, priority, searchID string) (model.FetchTa
 		}
 		t.URL, t.Kind = u, model.KindBoardFeed
 		return t, nil
-	case model.BoardWorkday, model.BoardDarwinbox, model.BoardSmartRecruiters:
+	case model.BoardWorkday, model.BoardDarwinbox, model.BoardSmartRecruiters, model.BoardAmazon, model.BoardEightfold, model.BoardApple:
 		u, err := boards.FeedURL(c.BoardType, c.BoardToken)
 		if err != nil {
 			return t, err
