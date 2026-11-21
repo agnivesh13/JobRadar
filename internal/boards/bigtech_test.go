@@ -251,3 +251,38 @@ func TestEightfoldQualcomm(t *testing.T) {
 		t.Errorf("posting = %+v", p)
 	}
 }
+
+// HSBC's tenant has PCSX turned off and serves the older /api/apply/v2 API.
+func TestEightfoldHSBC(t *testing.T) {
+	b, tok, ok := Detect("https://hsbc.eightfold.ai/careers?domain=hsbc.com")
+	if !ok || b != model.BoardEightfold || tok != "hsbc.eightfold.ai/hsbc.com" || DisplayName(b, tok) != "HSBC" {
+		t.Fatalf("Detect = %q %q %v", b, tok, ok)
+	}
+	first, err := FeedURL(b, tok)
+	const base = "https://hsbc.eightfold.ai/api/apply/v2/jobs?domain=hsbc.com&start=0&num=10"
+	if err != nil || first != base {
+		t.Fatalf("FeedURL = %q, %v", first, err)
+	}
+	refine, err := ParseListPage(b, nil, first, "India")
+	if err != nil || refine.Refine != base+"&location=India" {
+		t.Fatalf("refine = %+v, %v", refine, err)
+	}
+	list, err := ParseListPage(b, load(t, "eightfold_hsbc_list.json"), refine.Refine, "India")
+	if err != nil || len(list.Postings) != 2 ||
+		list.Next != "https://hsbc.eightfold.ai/api/apply/v2/jobs?domain=hsbc.com&start=10&num=10&location=India" {
+		t.Fatalf("list = %+v, %v", list, err)
+	}
+	p := list.Postings[0]
+	if p.URL != "https://portal.careers.hsbc.com/careers/job/563774612545977" ||
+		p.DetailURL != "https://hsbc.eightfold.ai/api/apply/v2/jobs/563774612545977?domain=hsbc.com" {
+		t.Errorf("posting = %+v", p)
+	}
+	j, err := ParseJobPage(b, load(t, "eightfold_hsbc_job.json"), p.DetailURL)
+	if err != nil || !strings.HasPrefix(j.Title, "Head of Wealth Risk") || j.Location != "Mumbai, Maharashtra, India" ||
+		j.PostedAt == nil || len(j.Description) < 1000 || j.URL != p.URL {
+		t.Errorf("job = %+v, %v", j, err)
+	}
+	if _, err := ParseListPage(b, []byte(`{"count":183,"positions":[]}`), refine.Refine, "India"); err == nil {
+		t.Error("a page that reports positions but holds none must be an error")
+	}
+}

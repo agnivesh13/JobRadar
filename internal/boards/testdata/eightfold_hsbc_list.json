@@ -1,0 +1,69 @@
+{
+ "count": 183,
+ "positions": [
+  {
+   "id": 563774612545977,
+   "name": "Head of Wealth Risk, International Wealth and Premier Banking (IWPB), HSBC-India (INM)",
+   "posting_name": "Head of Wealth Risk, International Wealth and Premier Banking (IWPB), HSBC-India (INM)",
+   "location": "Mumbai, Maharashtra, India",
+   "locations": [
+    "Mumbai, Maharashtra, India"
+   ],
+   "hot": 1,
+   "department": "Risk and Compliance",
+   "business_unit": "Risk & Compliance",
+   "t_update": 1794806114,
+   "t_create": 1793107349,
+   "ats_job_id": "64903",
+   "display_job_id": "64903",
+   "type": "ATS",
+   "id_locale": "64903-en_GB",
+   "job_description": "",
+   "locale": "en_GB",
+   "stars": 0,
+   "medallionProgram": null,
+   "location_flexibility": null,
+   "work_location_option": "onsite",
+   "canonicalPositionUrl": "https://portal.careers.hsbc.com/careers/job/563774612545977",
+   "isPrivate": false,
+   "latlongs": "18.9582347,72.8319514",
+   "custom_data": {
+    "location": "Mumbai, Maharashtra, India",
+    "brand": "HSBC",
+    "postedDate": null
+   }
+  },
+  {
+   "id": 563774612673370,
+   "name": "Associate Vice President - Relationship Manager - Business Banking",
+   "posting_name": "Associate Vice President - Relationship Manager - Business Banking",
+   "location": "Gurugram, Haryana, India",
+   "locations": [
+    "Gurugram, Haryana, India"
+   ],
+   "hot": 0,
+   "department": "Branch and Retail Banking",
+   "business_unit": "Corp & Inst Banking",
+   "t_update": 1795242011,
+   "t_create": 1795169528,
+   "ats_job_id": "67932",
+   "display_job_id": "67932",
+   "type": "ATS",
+   "id_locale": "67932-en_GB",
+   "job_description": "",
+   "locale": "en_GB",
+   "stars": 0,
+   "medallionProgram": null,
+   "location_flexibility": null,
+   "work_location_option": "onsite",
+   "canonicalPositionUrl": "https://portal.careers.hsbc.com/careers/job/563774612673370",
+   "isPrivate": false,
+   "latlongs": "28.4594965,77.0266383",
+   "custom_data": {
+    "location": "Gurugram, Haryana, India",
+    "brand": "HSBC",
+    "postedDate": null
+   }
+  }
+ ]
+}

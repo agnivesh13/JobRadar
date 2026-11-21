@@ -82,7 +82,7 @@ func DisplayName(boardType, token string) string {
 	case model.BoardEightfold:
 		host, domain, _ := strings.Cut(token, "/")
 		if h, ok := eightfoldHosts[host]; ok {
-			return h[1]
+			return h.name
 		}
 		return strings.SplitN(domain, ".", 2)[0]
 	}
