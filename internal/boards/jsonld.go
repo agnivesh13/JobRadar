@@ -164,6 +164,9 @@ func toJob(m map[string]any, base *url.URL) (model.RawJob, bool) {
 		var parts []string
 		for _, k := range []string{"addressLocality", "addressRegion", "addressCountry"} {
 			if s := str(addr[k]); s != "" {
+				if k == "addressCountry" {
+					s = spellCountry(s) // iCIMS gives "IN", "US"
+				}
 				parts = append(parts, s)
 			}
 		}

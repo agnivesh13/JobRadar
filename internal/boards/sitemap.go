@@ -25,6 +25,17 @@ import (
 //   - Nomura (careers.nomura.com, SuccessFactors): the same layout; /sitemap.xml
 //     lists 531 jobs under /Nomura/job/, and the location is in "City:"
 //     "Mumbai" and "Country:" "IN" (the site crawl read titles as "Job Title: X").
+//   - Swiss Re (careers.swissre.com, SuccessFactors, checked 22 Nov 2026):
+//     /sitemap.xml lists 209 jobs under /job/; "Location:" "Bangalore, KA, IN".
+//   - Tata AIG (careers.tataaig.com) and Worldline (jobs.worldline.com),
+//     SuccessFactors, checked 22 Nov 2026: 67 and 202 jobs. Tata AIG has no
+//     location label; like the others it carries schema.org microdata
+//     (<meta itemprop="addressLocality|addressCountry|datePosted">), which is
+//     the fallback for the location and the first choice for the date
+//     ("Thu Nov 12 15:00:00 UTC 2026": unlike the labels, not ambiguous).
+//     Worldline's label dates are month first ("10/19/26") and are not read.
+//   - MSCI (globalcareers-msci.icims.com, iCIMS, checked 22 Nov 2026): the
+//     sitemap lists 83 job pages under /jobs/, each with a JobPosting.
 //   - Société Générale (careers.societegenerale.com): /search is disallowed;
 //     /sitemap.xml lists 644 job offers under /en/job-offers/, and each page
 //     carries a schema.org JobPosting (datePosted "2026/09/24").
@@ -39,12 +50,16 @@ type sitemapSite struct {
 }
 
 var sitemapHosts = map[string]sitemapSite{
-	"jobs.standardchartered.com":  {sitemap: "/sitemap.xml", jobPath: "/job/", name: "Standard Chartered"},
-	"careers.societegenerale.com": {sitemap: "/sitemap.xml", jobPath: "/en/job-offers/", name: "Société Générale"},
-	"careers.nomura.com":          {sitemap: "/sitemap.xml", jobPath: "/Nomura/job/", name: "Nomura"},
+	"jobs.standardchartered.com":   {sitemap: "/sitemap.xml", jobPath: "/job/", name: "Standard Chartered"},
+	"careers.societegenerale.com":  {sitemap: "/sitemap.xml", jobPath: "/en/job-offers/", name: "Société Générale"},
+	"careers.nomura.com":           {sitemap: "/sitemap.xml", jobPath: "/Nomura/job/", name: "Nomura"},
+	"careers.swissre.com":          {sitemap: "/sitemap.xml", jobPath: "/job/", name: "Swiss Re"},
+	"careers.tataaig.com":          {sitemap: "/sitemap.xml", jobPath: "/job/", name: "Tata AIG"},
+	"jobs.worldline.com":           {sitemap: "/sitemap.xml", jobPath: "/job/", name: "Worldline"},
+	"globalcareers-msci.icims.com": {sitemap: "/sitemap.xml", jobPath: "/jobs/", name: "MSCI"},
 }
 
-var sitemapRe = regexp.MustCompile(`(?i)\b(jobs\.standardchartered\.com|careers\.societegenerale\.com|careers\.nomura\.com)(?:/|$)`)
+var sitemapRe = regexp.MustCompile(`(?i)\b(jobs\.standardchartered\.com|careers\.societegenerale\.com|careers\.nomura\.com|careers\.swissre\.com|careers\.tataaig\.com|jobs\.worldline\.com|globalcareers-msci\.icims\.com)(?:/|$)`)
 
 func sitemapFeedURL(host string) (string, error) {
 	site, ok := sitemapHosts[host]
@@ -108,9 +123,15 @@ func parseSuccessFactorsJob(body []byte, u *url.URL) (model.RawJob, error) {
 	}
 	var title, desc string
 	fields := map[string]string{}
+	micro := map[string]string{} // schema.org microdata in <meta itemprop content>
 	var walk func(n *html.Node)
 	walk = func(n *html.Node) {
 		if n.Type == html.ElementNode {
+			if prop := attrOf(n, "itemprop"); n.Data == "meta" && prop != "" {
+				if _, seen := micro[prop]; !seen {
+					micro[prop] = strings.TrimSpace(attrOf(n, "content"))
+				}
+			}
 			switch attrOf(n, "itemprop") {
 			case "title":
 				if title == "" {
@@ -161,10 +182,17 @@ func parseSuccessFactorsJob(body []byte, u *url.URL) (model.RawJob, error) {
 		}
 		location = strings.Join(parts, ", ")
 	}
-	if i := strings.LastIndex(location, ", "); i >= 0 {
-		if country, known := countryCodes[strings.TrimSpace(location[i+2:])]; known {
-			location = location[:i] + ", " + country
+	if location == "" {
+		var parts []string
+		for _, key := range []string{"addressLocality", "addressCountry"} {
+			if v := micro[key]; v != "" {
+				parts = append(parts, v)
+			}
 		}
+		location = strings.Join(parts, ", ")
+	}
+	if i := strings.LastIndex(location, ", "); i >= 0 {
+		location = location[:i] + ", " + spellCountry(location[i+2:])
 	}
 	job := model.RawJob{
 		URL:            u.String(),
@@ -174,7 +202,14 @@ func parseSuccessFactorsJob(body []byte, u *url.URL) (model.RawJob, error) {
 		EmploymentType: fields["Employment Type"],
 		Description:    clip(HTMLToText(desc)),
 	}
+	if t, err := time.Parse(time.UnixDate, micro["datePosted"]); err == nil {
+		t = t.UTC()
+		job.PostedAt = &t
+	}
 	for _, key := range []string{"Posting Start Date", "Date"} {
+		if job.PostedAt != nil {
+			break
+		}
 		// Checked on Standard Chartered (en_GB): day first.
 		if t, err := time.Parse("02/01/2006", fields[key]); err == nil {
 			job.PostedAt = &t
@@ -182,6 +217,15 @@ func parseSuccessFactorsJob(body []byte, u *url.URL) (model.RawJob, error) {
 		}
 	}
 	return job, nil
+}
+
+// spellCountry spells out an ISO country code; anything else is returned as is.
+func spellCountry(code string) string {
+	code = strings.TrimSpace(code)
+	if name, ok := countryCodes[strings.ToUpper(code)]; ok && len(code) <= 3 {
+		return name
+	}
+	return code
 }
 
 func attrOf(n *html.Node, key string) string {

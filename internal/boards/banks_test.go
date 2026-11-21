@@ -111,3 +111,84 @@ func TestJobPostingsUnescapeTitle(t *testing.T) {
 		t.Errorf("jobs = %+v", jobs)
 	}
 }
+
+// Swiss Re (22 Nov 2026): one "Location:" label with state and country codes.
+func TestSitemapSwissRe(t *testing.T) {
+	b, tok, ok := Detect("https://careers.swissre.com/search/?q=")
+	if !ok || b != model.BoardSitemap || tok != "careers.swissre.com" || DisplayName(b, tok) != "Swiss Re" {
+		t.Fatalf("Detect = %q %q %v", b, tok, ok)
+	}
+	const page = "https://careers.swissre.com/job/Bangalore-Enterprise-Architect-KA/1447979933/"
+	j, err := ParseJobPage(b, load(t, "sitemap_swissre_job.html"), page)
+	if err != nil || j.Title != "Enterprise Architect" || j.Location != "Bangalore, KA, India" || j.URL != page || len(j.Description) < 500 {
+		t.Errorf("job = %+v, %v", j, err)
+	}
+}
+
+// BFSI hosts checked on 22 Nov 2026.
+
+func TestSitemapTataAIGMicrodata(t *testing.T) {
+	b, tok, ok := Detect("https://careers.tataaig.com/")
+	if !ok || b != model.BoardSitemap || tok != "careers.tataaig.com" || DisplayName(b, tok) != "Tata AIG" {
+		t.Fatalf("Detect = %q %q %v", b, tok, ok)
+	}
+	const page = "https://careers.tataaig.com/job/Lucknow-Area-Sales-Manager-HOM-Luck/1368835966/"
+	j, err := ParseJobPage(b, load(t, "sitemap_tataaig_job.html"), page)
+	// No location label: the location and date come from the page's microdata.
+	if err != nil || j.Title != "Area Sales Manager - HOM" || j.Location != "Lucknow, India" ||
+		j.PostedAt == nil || !j.PostedAt.Equal(time.Date(2026, 11, 12, 15, 0, 0, 0, time.UTC)) {
+		t.Errorf("job = %+v, %v", j, err)
+	}
+}
+
+func TestSitemapWorldline(t *testing.T) {
+	b, tok, ok := Detect("https://jobs.worldline.com/search/")
+	if !ok || b != model.BoardSitemap || tok != "jobs.worldline.com" || DisplayName(b, tok) != "Worldline" {
+		t.Fatalf("Detect = %q %q %v", b, tok, ok)
+	}
+	j, err := ParseJobPage(b, load(t, "sitemap_worldline_job.html"), "https://jobs.worldline.com/job/Pune-Senior-L&D-Manager-MH/1363173857/")
+	if err != nil || j.Title != "Senior L&D Manager" || j.Location != "India - Pune" {
+		t.Errorf("job = %+v, %v", j, err)
+	}
+}
+
+func TestSitemapMSCIiCIMS(t *testing.T) {
+	b, tok, ok := Detect("https://globalcareers-msci.icims.com/jobs/search?ss=1")
+	if !ok || b != model.BoardSitemap || tok != "globalcareers-msci.icims.com" || DisplayName(b, tok) != "MSCI" {
+		t.Fatalf("Detect = %q %q %v", b, tok, ok)
+	}
+	const page = "https://globalcareers-msci.icims.com/jobs/6078/software-engineer/job"
+	j, err := ParseJobPage(b, load(t, "sitemap_msci_job.html"), page)
+	// iCIMS gives the country as "US": it is spelled out.
+	if err != nil || j.Title != "Software Engineer" || !strings.HasSuffix(j.Location, "United States") || j.URL != page || j.PostedAt == nil {
+		t.Errorf("job = %+v, %v", j, err)
+	}
+}
+
+func TestPhenomMarshCountryFilter(t *testing.T) {
+	b, tok, ok := Detect("https://careers.marsh.com/global/en/search-results")
+	if !ok || b != model.BoardPhenom || tok != "careers.marsh.com/global/en" || DisplayName(b, tok) != "Marsh McLennan" {
+		t.Fatalf("Detect = %q %q %v", b, tok, ok)
+	}
+	first, _ := FeedURL(b, tok)
+	body := load(t, "phenom_marsh_list.html")
+	// Both jobs on this page are in Mexico: with India wanted, none is fetched, but paging goes on.
+	list, err := ParseListPage(b, body, first, "India")
+	if err != nil || len(list.Postings) != 0 || list.Next != "https://careers.marsh.com/global/en/search-results?from=2&s=1" {
+		t.Fatalf("list = %+v, %v", list, err)
+	}
+	if all, _ := ParseListPage(b, body, first, ""); len(all.Postings) != 2 {
+		t.Errorf("without a country every job is listed: %+v", all)
+	}
+}
+
+func TestEightfoldMillennium(t *testing.T) {
+	b, tok, ok := Detect("https://mlp.eightfold.ai/careers")
+	if !ok || b != model.BoardEightfold || tok != "mlp.eightfold.ai/mlp.com" || DisplayName(b, tok) != "Millennium" {
+		t.Fatalf("Detect = %q %q %v", b, tok, ok)
+	}
+	list, err := ParseListPage(b, load(t, "eightfold_mlp_list.json"), "https://mlp.eightfold.ai/api/apply/v2/jobs?domain=mlp.com&start=0&num=10&location=India", "India")
+	if err != nil || len(list.Postings) != 2 || list.Next == "" || !strings.Contains(list.Postings[0].DetailURL, "/api/apply/v2/jobs/") {
+		t.Fatalf("list = %+v, %v", list, err)
+	}
+}

@@ -28,7 +28,7 @@ func TestParseJSONLD(t *testing.T) {
 		t.Fatalf("want 1 JobPosting, got %d", len(p.Jobs))
 	}
 	j := p.Jobs[0]
-	if j.Title != "Backend Engineer" || j.Location != "Hyderabad, Telangana, IN" || j.EmploymentType != "FULL_TIME" {
+	if j.Title != "Backend Engineer" || j.Location != "Hyderabad, Telangana, India" || j.EmploymentType != "FULL_TIME" {
 		t.Errorf("unexpected job: %+v", j)
 	}
 	if j.Pay == nil || j.Pay.Min != 1200000 || j.Pay.Max != 1800000 || j.Pay.Currency != "INR" || j.Pay.Period != "year" {

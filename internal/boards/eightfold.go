@@ -57,9 +57,10 @@ var eightfoldHosts = map[string]eightfoldSite{
 	"apply.careers.microsoft.com": {domain: "microsoft.com", name: "Microsoft"},
 	"careers.qualcomm.com":        {domain: "qualcomm.com", name: "Qualcomm"},
 	"hsbc.eightfold.ai":           {domain: "hsbc.com", name: "HSBC", applyV2: true},
+	"mlp.eightfold.ai":            {domain: "mlp.com", name: "Millennium", applyV2: true}, // checked 22 Nov 2026
 }
 
-var eightfoldRe = regexp.MustCompile(`(?i)\b(apply\.careers\.microsoft\.com|careers\.qualcomm\.com|hsbc\.eightfold\.ai)/(?:careers|api/pcsx|api/apply)`)
+var eightfoldRe = regexp.MustCompile(`(?i)\b(apply\.careers\.microsoft\.com|careers\.qualcomm\.com|hsbc\.eightfold\.ai|mlp\.eightfold\.ai)/(?:careers|api/pcsx|api/apply)`)
 
 func eightfoldToken(m []string) string {
 	host := strings.ToLower(m[1])

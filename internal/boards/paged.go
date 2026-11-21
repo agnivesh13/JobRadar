@@ -79,7 +79,7 @@ func ParseListPage(boardType string, body []byte, taskURL, country string) (List
 	case model.BoardOracle:
 		return parseOracleList(body, u, country)
 	case model.BoardPhenom:
-		return parsePhenomList(body, u)
+		return parsePhenomList(body, u, country)
 	case model.BoardSitemap:
 		return parseSitemapList(body, u)
 	case model.BoardWorkday, "":

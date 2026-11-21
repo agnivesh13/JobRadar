@@ -1,0 +1,59 @@
+{
+ "count": 41,
+ "positions": [
+  {
+   "id": 755959842482,
+   "name": "Applied AI Engineer - Operations & Middle Office",
+   "posting_name": "Applied AI Engineer - Operations & Middle Office",
+   "location": "Bangalore, Karnataka, India",
+   "locations": [
+    "Bangalore, Karnataka, India"
+   ],
+   "hot": 0,
+   "department": "Operations & Middle Office",
+   "business_unit": "Core Operations",
+   "t_update": 1794960000,
+   "t_create": 1794960000,
+   "ats_job_id": "REQ-32011",
+   "display_job_id": "REQ-32011",
+   "type": "ATS",
+   "id_locale": "REQ-32011-en-US",
+   "job_description": "",
+   "locale": "en-US",
+   "stars": 0,
+   "medallionProgram": null,
+   "location_flexibility": null,
+   "work_location_option": "onsite",
+   "canonicalPositionUrl": "https://mlp.eightfold.ai/careers/job/755959842482",
+   "isPrivate": false,
+   "latlongs": "12.9628957,77.57754"
+  },
+  {
+   "id": 755959550051,
+   "name": "Chartered Accountant",
+   "posting_name": "Chartered Accountant",
+   "location": "Bangalore, Karnataka, India",
+   "locations": [
+    "Bangalore, Karnataka, India"
+   ],
+   "hot": 0,
+   "department": "Finance",
+   "business_unit": "APAC Finance",
+   "t_update": 1793577600,
+   "t_create": 1793577600,
+   "ats_job_id": "REQ-31751",
+   "display_job_id": "REQ-31751",
+   "type": "ATS",
+   "id_locale": "REQ-31751-en-US",
+   "job_description": "",
+   "locale": "en-US",
+   "stars": 0,
+   "medallionProgram": null,
+   "location_flexibility": null,
+   "work_location_option": "onsite",
+   "canonicalPositionUrl": "https://mlp.eightfold.ai/careers/job/755959550051",
+   "isPrivate": false,
+   "latlongs": "12.9628957,77.57754"
+  }
+ ]
+}

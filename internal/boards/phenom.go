@@ -29,6 +29,8 @@ import (
 //     (robots.txt disallows only apply, chatbot, widget and tracking paths).
 //   - 10 jobs per page; the last page (from=1370 of 1373) answered normally.
 //   - The job page works without the title slug, so the job URL is stable.
+//   - Each listed job has a "country"; with a country set, jobs of other
+//     countries are skipped on the list, so their pages are not fetched.
 //   - The detail data carries recruiter fields (names, e-mail addresses);
 //     only the posting's own fields are read.
 //
@@ -40,9 +42,10 @@ type phenomSite struct{ locale, name string }
 
 var phenomHosts = map[string]phenomSite{
 	"careers.idfcfirst.bank.in": {locale: "in/en", name: "IDFC FIRST Bank"},
+	"careers.marsh.com":         {locale: "global/en", name: "Marsh McLennan"}, // 1,906 jobs worldwide, 22 Nov 2026
 }
 
-var phenomRe = regexp.MustCompile(`(?i)\b(careers\.idfcfirst\.bank\.in)/`)
+var phenomRe = regexp.MustCompile(`(?i)\b(careers\.idfcfirst\.bank\.in|careers\.marsh\.com)/`)
 
 func phenomToken(m []string) string {
 	host := strings.ToLower(m[1])
@@ -108,7 +111,7 @@ func phenomLocale(u *url.URL) string {
 	return p
 }
 
-func parsePhenomList(body []byte, u *url.URL) (ListPage, error) {
+func parsePhenomList(body []byte, u *url.URL, country string) (ListPage, error) {
 	var out ListPage
 	raw, err := phenomDDO(body)
 	if err != nil {
@@ -119,8 +122,9 @@ func parsePhenomList(body []byte, u *url.URL) (ListPage, error) {
 			TotalHits int `json:"totalHits"`
 			Data      struct {
 				Jobs []struct {
-					SeqNo string `json:"jobSeqNo"`
-					Title string `json:"title"`
+					SeqNo   string `json:"jobSeqNo"`
+					Title   string `json:"title"`
+					Country string `json:"country"`
 				} `json:"jobs"`
 			} `json:"data"`
 		} `json:"eagerLoadRefineSearch"`
@@ -135,7 +139,7 @@ func parsePhenomList(body []byte, u *url.URL) (ListPage, error) {
 	}
 	locale := phenomLocale(u)
 	for _, j := range jobs {
-		if j.SeqNo == "" {
+		if j.SeqNo == "" || (country != "" && j.Country != "" && !strings.EqualFold(j.Country, country)) {
 			continue
 		}
 		link := "https://" + u.Host + "/" + locale + "/job/" + url.PathEscape(j.SeqNo)

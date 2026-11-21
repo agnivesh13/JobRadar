@@ -16,6 +16,7 @@ One file per build phase. Each one records what was built, why it was built that
 | 9. Big companies: Amazon, Microsoft, Apple, Swiggy, Eternal (added after the plan) | [phase-9-big-companies.md](phase-9-big-companies.md) | Amazon, Microsoft, Apple, Swiggy crawled; Eternal hires by referral only; Google and Meta excluded by their robots.txt |
 | 10. Twenty more companies: Atlassian and Oracle boards, Qualcomm on Eightfold (added after the plan) | [phase-10-more-companies.md](phase-10-more-companies.md) | 16 crawled; Uber, Flipkart, SAP, Goldman not crawlable; J.P. Morgan manual |
 | 11. Banks hiring in India: Phenom and sitemap readers, HSBC on Eightfold's older API (added after the plan) | [phase-11-banks.md](phase-11-banks.md) | 46 banks checked; 28 crawled, 18 manual |
+| 12. BFSI companies hiring freshers in India (added after the plan) | [phase-12-bfsi.md](phase-12-bfsi.md) | ~100 checked; 53 crawled, 46 manual |
 
 ## How the phases were split
 
