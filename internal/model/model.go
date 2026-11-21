@@ -17,6 +17,8 @@ const (
 	BoardApple           = "apple"
 	BoardAtlassian       = "atlassian"
 	BoardOracle          = "oraclehcm"
+	BoardPhenom          = "phenom"
+	BoardSitemap         = "sitemap" // a job list read from the sitemap, one HTML page per job
 	BoardCustom          = "custom"
 	BoardUnknown         = "unknown"
 )

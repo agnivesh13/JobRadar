@@ -79,6 +79,17 @@ func DisplayName(boardType, token string) string {
 			return "Oracle"
 		}
 		return strings.SplitN(token, ".", 2)[0]
+	case model.BoardPhenom:
+		host, _, _ := strings.Cut(token, "/")
+		if h, ok := phenomHosts[host]; ok {
+			return h.name
+		}
+		return strings.SplitN(host, ".", 2)[0]
+	case model.BoardSitemap:
+		if h, ok := sitemapHosts[strings.ToLower(token)]; ok {
+			return h.name
+		}
+		return strings.SplitN(token, ".", 2)[0]
 	case model.BoardEightfold:
 		host, domain, _ := strings.Cut(token, "/")
 		if h, ok := eightfoldHosts[host]; ok {

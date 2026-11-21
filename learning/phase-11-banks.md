@@ -12,9 +12,13 @@
 | Workday | Barclays, Citi, Visa, Mastercard, BlackRock, DBS, Mizuho, Truist, ING, Capital One, U.S. Bank, State Street, Bank of America, Lloyds, Commonwealth Bank, Synchrony, Morgan Stanley, Fidelity, Northern Trust, MUFG |
 | Oracle Recruiting Cloud | BNY, Kotak Mahindra Bank |
 | Eightfold (older API, **new**) | HSBC |
-| Site crawl of the job search page | ICICI Bank, Nomura (SuccessFactors search), Macquarie (Avature search) |
+| Phenom (**new reader**) | IDFC FIRST Bank |
+| Sitemap + job pages (**new reader**) | Standard Chartered, Nomura (SuccessFactors), Société Générale (JSON-LD) |
+| Site crawl of the careers page | ICICI Bank |
 | **Manual**: blocks the crawler (403 or no answer) | IndusInd, Yes Bank, AU Small Finance Bank, BNP Paribas, Wells Fargo, American Express (its Eightfold API answers with an HTML page) |
-| **Manual**: job list built by scripts or a system with no reader | HDFC Bank, Axis Bank, IDFC FIRST (Phenom), Bandhan, RBL, Federal Bank (Zappyhire), Standard Chartered (SuccessFactors, scripted), NatWest, Deutsche Bank, UBS, ANZ, Société Générale (Taleo), Charles Schwab |
+| **Manual**: job list built by scripts, with no public data to read | HDFC Bank, Axis Bank, Bandhan, RBL, Federal Bank (Zappyhire), NatWest, Deutsche Bank, ANZ, Charles Schwab |
+| **Manual**: needs a session cookie to page | UBS (BrassRing: only the newest 50 jobs come without one) |
+| **Manual**: job pages need one more layout reader | Macquarie (Avature) |
 | **Manual**: recruits by exam notices, not job postings | State Bank of India |
 | Already manual | J.P. Morgan (Phase 10) |
 
@@ -38,14 +42,29 @@
 ### 4. Names from domain searches
 - A search by domain names the company after the domain ("Sc", "Db", "Jobs"). Renamed by SQL.
 
+### 5. Three more readers, asked for after the first pass
+- **Phenom (IDFC FIRST):** the page is built in the browser, but the data it shows is in the HTML as `phApp.ddo = {...}`. The reader takes that object (string-aware brace matching, not a regex) from the list page (`search-results?from=N`, 10 a page) and from each job page (`/job/{jobSeqNo}`, which works without the slug).
+- **Sitemap + job pages (Standard Chartered, Nomura, Société Générale):** their search pages call paths robots.txt disallows (`/services/`, `/search`), but their sitemaps list every job page and the pages are plain HTML. A job page is read from schema.org JobPosting data when present, otherwise from SuccessFactors' `itemprop` title and description and its labelled fields.
+- The JobPosting reader moved from the site crawler into the boards package (`boards.JobPostings`, `CleanURL`, `SitemapURLs`) so both use one copy.
+- **UBS (BrassRing)** was checked and left manual: page 2 of its search needs the session cookie of page 1, and it has no job sitemap.
+
+### 6. The fixtures caught one shape difference
+- **Seen:** `cannot unmarshal object into .jobDetail.data.job.multi_location.0 of type string`.
+- **Cause:** Phenom's `multi_location` is a list of strings on the list page and a list of objects on the job page. Fixed; the test reads the real job page.
+- Phenom's job data also carries recruiter names and e-mail addresses; the reader takes only the posting's fields and the fixtures are trimmed to those.
+
+### 7. Live checks after the readers
+- Société Générale HTML-escapes titles inside JSON ("Reporting &amp; Data"); titles are now unescaped (for site crawls too), and the 47 escaped rows were closed so the next crawl stores them again.
+- Standard Chartered gives the country as an ISO code ("Bangalore, IND"), Nomura as "Country: IN"; both are spelled out so the location filter sees "India".
+
 ## Known gaps
 
-1. Phenom, SuccessFactors (scripted pages), Taleo and BrassRing have no reader. Building one would bring back IDFC FIRST, Standard Chartered, Société Générale and UBS.
+1. Taleo has no reader yet (no bank needs it now); Avature (Macquarie) has none either.
 2. ICICI's site crawl finds only a few roles, with no clear location.
 3. Most bank roles in India are sales or branch roles, and senior; expect few matches for a fresher outside Barclays, Visa, Citi, BlackRock and HSBC's technology roles.
 
 ## How to verify
 
 ```
-go test ./internal/boards/ -run Eightfold
+go test ./internal/boards/ -run "Eightfold|Phenom|Sitemap|JobPostings"
 ```

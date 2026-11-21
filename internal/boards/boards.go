@@ -57,6 +57,14 @@ func FeedURL(boardType, token string) (string, error) {
 			return "", err
 		}
 		return oracleListURL(host, site, 0, ""), nil
+	case model.BoardPhenom:
+		host, locale, err := phenomParts(token)
+		if err != nil {
+			return "", err
+		}
+		return phenomListURL(host, locale, 0), nil
+	case model.BoardSitemap:
+		return sitemapFeedURL(strings.ToLower(token))
 	}
 	return "", fmt.Errorf("no feed for board type %q", boardType)
 }
@@ -137,6 +145,8 @@ var detectors = []struct {
 	{board: model.BoardApple, re: appleRe, token: func([]string) string { return "apple" }},
 	{board: model.BoardAtlassian, re: atlassianRe, token: lowerToken},
 	{board: model.BoardOracle, re: oracleRe, token: oracleToken},
+	{board: model.BoardPhenom, re: phenomRe, token: phenomToken},
+	{board: model.BoardSitemap, re: sitemapRe, token: lowerToken},
 }
 
 func lowerToken(m []string) string { return strings.ToLower(m[1]) }

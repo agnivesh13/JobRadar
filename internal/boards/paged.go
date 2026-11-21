@@ -24,7 +24,8 @@ const MaxPagedPages = WorkdayMaxPages
 // Paged reports whether a board is crawled as list pages plus posting pages.
 func Paged(boardType string) bool {
 	switch boardType {
-	case model.BoardWorkday, model.BoardDarwinbox, model.BoardSmartRecruiters, model.BoardAmazon, model.BoardEightfold, model.BoardApple, model.BoardOracle:
+	case model.BoardWorkday, model.BoardDarwinbox, model.BoardSmartRecruiters, model.BoardAmazon, model.BoardEightfold, model.BoardApple, model.BoardOracle,
+		model.BoardPhenom, model.BoardSitemap:
 		return true
 	}
 	return false
@@ -49,6 +50,10 @@ func IsListPage(boardType, taskURL string) bool {
 		return isAppleList(u)
 	case model.BoardOracle:
 		return isOracleList(u)
+	case model.BoardPhenom:
+		return isPhenomList(u)
+	case model.BoardSitemap:
+		return isSitemapList(u)
 	}
 	return IsWorkdayList(taskURL)
 }
@@ -73,6 +78,10 @@ func ParseListPage(boardType string, body []byte, taskURL, country string) (List
 		return parseAppleList(body, u, country)
 	case model.BoardOracle:
 		return parseOracleList(body, u, country)
+	case model.BoardPhenom:
+		return parsePhenomList(body, u)
+	case model.BoardSitemap:
+		return parseSitemapList(body, u)
 	case model.BoardWorkday, "":
 		return ParseWorkdayList(body, taskURL, country)
 	}
@@ -96,6 +105,10 @@ func ParseJobPage(boardType string, body []byte, taskURL string) (model.RawJob, 
 		return parseAppleJob(body, u)
 	case model.BoardOracle:
 		return parseOracleJob(body, u)
+	case model.BoardPhenom:
+		return parsePhenomJob(body, u)
+	case model.BoardSitemap:
+		return parseSitemapJob(body, u)
 	case model.BoardWorkday, "":
 		return ParseWorkdayJob(body, taskURL)
 	}
