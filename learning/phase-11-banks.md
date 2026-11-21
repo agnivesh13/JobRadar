@@ -5,7 +5,7 @@
 
 ## Outcome (21 Nov 2026)
 
-50 banks and card companies were looked up through the app's own search, then by domain, then by hand.
+46 banks and card companies were looked up through the app's own search, then by domain, then by hand.
 
 | How it is read | Banks |
 | --- | --- |
